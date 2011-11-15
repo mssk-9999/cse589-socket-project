@@ -58,13 +58,13 @@ void run_cmd(char line[]) {
 		connect_handler(conn_argv);
 		break;
 	case 3:
-		//show_conn_handler();
+		show_conn_handler();
 		break;
 	case 4:
 		//self_token_handler();
 		break;
 	case 5:
-		all_tokens_handler();
+		//all_tokens_handler();
 		break;
 	case 6:
 		exit_handler();
@@ -98,9 +98,9 @@ void connect_handler(char* argv) {
 	count = numof_active_conns();
 
 	int is_correct = 1;
-	is_correct = parseArgLine(argv, arg_array);
+	is_correct = get_connection_arg(argv, arg_array);
 	if (is_correct != 2){
-		printf("\n\tconnect <ip-address> <tcp-port>\n");
+		printf("\n\t connect <ip-address> <tcp-port>\n");
 	}
 	else {
 		char ip[MAXLINE] = "";
@@ -108,9 +108,9 @@ void connect_handler(char* argv) {
 		strcpy(ip, arg_array[0]);
 		strcpy(port, arg_array[1]);
 		port[strlen(port) - 1] = '\0';
-//		if ((strcmp(ip, local_ip) == 0) && (atoi(port) == atoi(tcp_port)))
-//			throw_exception(ERROR, "\tdon't connect to yourself!");
-//		else {
+		if ((strcmp(ip, local_ip) == 0) && (atoi(port) == atoi(tcp_port)))
+			throw_exception(ERROR, "\tdon't connect to yourself!");
+		else {
 			int sock_fd;
 			if (count < MAX_CONNECTIONS) {
 				sock_fd = tcp_connect(ip, port);
@@ -119,6 +119,10 @@ void connect_handler(char* argv) {
 			} else{
 				throw_exception(ERROR, "\tmaximum number of connections reached");
 			}
-		//}
+		}
 	}
+}
+
+void show_conn_handler(){
+	display_tcp_connection();
 }

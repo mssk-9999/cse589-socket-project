@@ -111,7 +111,7 @@ void init_conn_list();
 void add_conn(int sock_fd);
 int numof_active_conns();
 int remove_conn(int conn_id);
-void disp_tcp_conn();
+void display_tcp_connection();
 
 // message container
 void init_message_container();
@@ -148,7 +148,7 @@ void process_broadcast_msg(msg_header_table *mh, char* msg, int cid);
 void process_salute_msg(char buffer[]);
 
 // misc
-int parseArgLine(char * arg_line, char *arg_array[]);
+int get_connection_arg(char * arg_line, char *arg_array[]);
 
 
 /*

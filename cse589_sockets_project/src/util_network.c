@@ -88,7 +88,6 @@ int get_self_token(char token[]) {
 		return 0;
 }
 
-
 void init_token_container() {
 	int i;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -222,7 +221,7 @@ void find_leader() {
 /*
  * parse argument line for connect
  * */
-int parseArgLine(char * arg_line, char *arg_array[]) {
+int get_connection_arg(char * arg_line, char *arg_array[]) {
 	char * p;
 	int count = 0;
 	p = strtok(arg_line, " ");
@@ -292,41 +291,40 @@ void disp_all_token() {
  * disp_tcp_conn(): used for display formatted infomations
  * , used by show-conn()
  * */
-void disp_tcp_conn() {
+void display_tcp_connection() {
 	if (numof_active_conns() == 0) {
 		printf("\n\tno active TCP connection\n");
 		fflush(stdout);
 		return;
 	}
-	int a = strlen("IP address"); /* IP field length          */
-	int b = strlen("Host name"); /* host name field length   */
-	int c = strlen("Local"); /* local port field length  */
-	int d = strlen("Remote"); /* remote port field length */
-
-	// find out how long each field needs to be
-	int i;
+	int ip_length = strlen("IP address");
+	int hostname_length = strlen("Host name");
+	int local_port_length = strlen("Local port");
+	int remote_port_length = strlen("Remote port");
+	//calculate the length of each connection info
+	int i = 0;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connection_list[i].connection_status == 1) {
-			a = max(a, strlen(connection_list[i].ip));
-			b = max(b, strlen(connection_list[i].name));
-			c = max(c, strlen(connection_list[i].local_port));
-			d = max(d, strlen(connection_list[i].remote_port));
+			ip_length = max(ip_length, strlen(connection_list[i].ip));
+			hostname_length = max(hostname_length, strlen(connection_list[i].name));
+			local_port_length = max(local_port_length, strlen(connection_list[i].local_port));
+			remote_port_length = max(remote_port_length, strlen(connection_list[i].remote_port));
 		}
 	}
 	putchar('\n');
 
-	int n = a + b + c + d + 18;
-	printf(" %-*s | %-*s | %-*s | %-*s | %-*s\n", 5, "cnnID", a, "IP address", b, "Host name", c, "Local", d, "Remote");
-	int j;
-	for (j = 0; j < n; j++) {
+	int n = ip_length + hostname_length + local_port_length + remote_port_length + 18;
+	//print header
+	printf(" %-*s | %-*s | %-*s | %-*s | %-*s\n", 5, "cnnID", ip_length, "IP address", hostname_length, "Host name", local_port_length, "Local port", remote_port_length, "Remote port");
+	//print break line
+	for (i = 0; i < n; i++) {
 		putchar('-');
 	}
-
 	putchar('\n');
-
+	//print table content
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connection_list[i].connection_status == 1) {
-			printf(" %5d | %-*s | %-*s | %-*s | %-*s\n", i, a, connection_list[i].ip, b, connection_list[i].name, c, connection_list[i].local_port, d, connection_list[i].remote_port);
+			printf(" %5d | %-*s | %-*s | %-*s | %-*s\n", i, ip_length, connection_list[i].ip, hostname_length, connection_list[i].name, local_port_length, connection_list[i].local_port, remote_port_length, connection_list[i].remote_port);
 		}
 	}
 	fflush(stdout);
@@ -542,9 +540,9 @@ int create_udp_socket(char* port) {
 	// loop through all the results and bind to the first we can
 	do {
 		udp_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-		if (udp_fd < 0){ //error, go to the next
+		if (udp_fd < 0) { //error, go to the next
 			continue;
-		}else if (bind(udp_fd, res->ai_addr, res->ai_addrlen) == 0)
+		} else if (bind(udp_fd, res->ai_addr, res->ai_addrlen) == 0)
 			break; /* success */
 		else
 			close(udp_fd); /* error */
@@ -750,7 +748,7 @@ void send_broadcast_message() {
 
 			if (sizeof(mh) != 12) {
 				printf("mh length is %d\n", sizeof(mh));
-				throw_exception(ERROR ,"sizeof(mh) != 12\n");
+				throw_exception(ERROR, "sizeof(mh) != 12\n");
 			}
 
 			//printf("BROADCAST message established, calling send_message()\n");
