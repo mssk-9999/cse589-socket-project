@@ -20,8 +20,9 @@ void throw_exception(const int exception_type, const char *formatted_msg, ...) {
 		vfprintf(STANDAR_OUTPUT, formatted_msg, args);
 		fputc('\n', STANDAR_OUTPUT);
 	}
-
 	va_end(args);
-	exit(1);
+	if( exception_type == FATAL_ERROR ) {
+		exit(1);
+	}
 }
 

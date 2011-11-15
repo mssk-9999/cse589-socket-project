@@ -1,0 +1,142 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BROADCAST	../include/util_network.h	16;"	d
+BUF_SIZE	../include/util_header.h	35;"	d
+DEBUG	../include/util_header.h	49;"	d
+EMPTY_COMMAND	../include/util_commands.h	13;"	d
+ERROR	../include/util_header.h	45;"	d
+EXCEPTION_OUTPUT	../include/exceptions.h	14;"	d
+FALSE	../include/util_header.h	37;"	d
+FATAL_ERROR	../include/util_header.h	44;"	d
+GREETING_MSG	../include/util_header.h	58;"	d
+ID_LENGTH	../include/util_network.h	20;"	d
+INFO	../include/util_header.h	47;"	d
+LISTENQ	../include/util_network.h	11;"	d
+MAXLINE	../include/util_header.h	34;"	d
+MAX_CITIZEN_NUM	../include/util_network.h	36;"	d
+MAX_CONNECTIONS	../include/util_network.h	35;"	d
+NOTE	../include/util_header.h	48;"	d
+NULL	../include/util_header.h	40;"	d
+PRIVATE	../include/util_network.h	15;"	d
+SA	../include/util_network.h	12;"	d
+SALUTE	../include/util_network.h	17;"	d
+SALUTE_LENGTH	../include/util_network.h	22;"	d
+STANDAR_OUTPUT	../include/exceptions.h	13;"	d
+Sigfunc	../include/util_header.h	/^typedef void Sigfunc(int); \/* for signal handlers               *\/$/;"	t
+TOKEN_LENTH	../include/util_network.h	21;"	d
+TRUE	../include/util_header.h	36;"	d
+UTIL_COMMANDS_C_	../include/util_commands.h	9;"	d
+UTIL_HEADER_H_	../include/util_header.h	9;"	d
+WARNING	../include/util_header.h	46;"	d
+_EXCEPTIONS_H	../include/exceptions.h	8;"	d
+_UTIL_NETWORK_H	../include/util_network.h	6;"	d
+add_broc_msg	./util_network.c	/^void add_broc_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]) {$/;"	f
+add_conn	./util_network.c	/^void add_conn(int sock_fd) {$/;"	f
+add_init_token	./util_network.c	/^void add_init_token(char init_token[]) {$/;"	f
+add_msg	./util_network.c	/^void add_msg(char *id) {$/;"	f
+all_tokens_handler	./util_commands.c	/^void all_tokens_handler() {$/;"	f
+broadcast_bag	../include/util_network.h	/^} broadcast_bag;$/;"	t	typeref:struct:__anon5
+broc_bag	./util_network.c	/^static broadcast_bag broc_bag[MAX_CITIZEN_NUM];$/;"	v	file:
+check_command	./util_commands.c	/^void check_command(int argc, char** argv) {$/;"	f
+check_peer_token	./util_network.c	/^int check_peer_token() {$/;"	f
+cmd_not_found	./util_commands.c	/^void cmd_not_found() {$/;"	f
+cmd_table	./util_commands.c	/^command_table cmd_table[] = { { "info" }, { "ready" }, { "connect" }, { "show-conn", }, { "self-token" }, { "all-tokens" }, { "exit" }, { 0 } };$/;"	v
+cmp_init_token	./util_network.c	/^void cmp_init_token() {$/;"	f
+command_table	../include/util_commands.h	/^} command_table;$/;"	t	typeref:struct:__anon2
+connection_container	../include/util_network.h	/^} connection_container;$/;"	t	typeref:struct:__anon3
+connection_list	./util_network.c	/^static connection_container connection_list[MAX_CONNECTIONS];$/;"	v	file:
+connection_status	../include/util_network.h	/^	int connection_status; \/* connection status *\/$/;"	m	struct:__anon3
+create_tcp_socket	./util_network.c	/^int create_tcp_socket(char* port) {$/;"	f
+create_udp_socket	./util_network.c	/^int create_udp_socket(char* port) {$/;"	f
+current_host_name	../include/util_network.h	/^char current_host_name[MAXLINE];$/;"	v
+disp_all_token	./util_network.c	/^void disp_all_token() {$/;"	f
+disp_tcp_conn	./util_network.c	/^void disp_tcp_conn() {$/;"	f
+exception_mapper	./exceptions.c	/^exception_type_name exception_mapper[] = { {"DEBUG:  "}, {"NOTE:  "}, {"INFO:  "}, {"WARNING:  "}, {"ERROR:  "}, {"FATAL_ERROE:  "} };$/;"	v
+exception_type_name	../include/exceptions.h	/^} exception_type_name;$/;"	t	typeref:struct:__anon1
+exit_handler	./util_commands.c	/^void exit_handler() {$/;"	f
+find_leader	./util_network.c	/^void find_leader() {$/;"	f
+get_conn_fd	./util_network.c	/^int get_conn_fd(int conn_id) {$/;"	f
+get_conn_info	./util_network.c	/^void get_conn_info(int conn_id, char ip[], char port[]) {$/;"	f
+get_max_fd	./util_network.c	/^int get_max_fd() {$/;"	f
+get_self_token	./util_network.c	/^int get_self_token(char token[]) {$/;"	f
+getsockinfo	./util_network.c	/^void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port) {$/;"	f
+id	../include/util_network.h	/^	char id[ID_LENGTH + 1];$/;"	m	struct:__anon4
+id	../include/util_network.h	/^	uint8_t id[ID_LENGTH + 1];$/;"	m	struct:__anon7
+init	./cse589_sockets_project.c	/^void init(int argc, char** argv) {$/;"	f
+init_broc_bag	./util_network.c	/^void init_broc_bag() {$/;"	f
+init_conn_list	./util_network.c	/^void init_conn_list() {$/;"	f
+init_header	./util_network.c	/^void init_header(msg_header_table *mh) {$/;"	f
+init_leader	./util_network.c	/^void init_leader() {$/;"	f
+init_message_container	./util_network.c	/^void init_message_container() {$/;"	f
+init_token_container	./util_network.c	/^void init_token_container() {$/;"	f
+init_token_container_list	./util_network.c	/^static token_container init_token_container_list[MAX_CONNECTIONS];$/;"	v	file:
+ip	../include/util_network.h	/^	char ip[MAXLINE]; \/* IP address  *\/$/;"	m	struct:__anon3
+ip	../include/util_network.h	/^	uint32_t ip;$/;"	m	struct:__anon5
+isUsed	../include/util_network.h	/^	int isUsed;$/;"	m	struct:__anon5
+isUsed	../include/util_network.h	/^	int isUsed;$/;"	m	struct:__anon6
+isUsed	../include/util_network.h	/^	int isUsed;$/;"	m	struct:__anon7
+is_new_msg	./util_network.c	/^int is_new_msg(char *id) {$/;"	f
+is_peerToken_determined	./util_network.c	/^static int is_peerToken_determined = 0;$/;"	v	file:
+leader	./util_network.c	/^static broadcast_bag leader;$/;"	v	file:
+listen_fd	../include/util_network.h	/^int listen_fd;	\/\/socket file descriptor for listening connection$/;"	v
+local_ip	../include/util_network.h	/^char local_ip[INET_ADDRSTRLEN];$/;"	v
+local_port	../include/util_network.h	/^	char local_port[MAXLINE]; \/* local port  *\/$/;"	m	struct:__anon3
+main	./cse589_sockets_project.c	/^int main(int argc, char** argv) {$/;"	f
+max	../include/util_header.h	54;"	d
+max_citizen_number	../include/util_header.h	/^int max_citizen_number;$/;"	v
+message_container	../include/util_network.h	/^} message_container;$/;"	t	typeref:struct:__anon7
+min	../include/util_header.h	53;"	d
+msg_container_list	./util_network.c	/^static message_container msg_container_list[MAX_CITIZEN_NUM];$/;"	v	file:
+msg_header_table	../include/util_network.h	/^} msg_header_table;$/;"	t	typeref:struct:__anon4
+my_broc_msg	./util_network.c	/^static broadcast_bag my_broc_msg;$/;"	v	file:
+my_read	./util_network.c	/^static ssize_t my_read(int fd, char* ptr) {$/;"	f	file:
+name	../include/exceptions.h	/^	char* name;$/;"	m	struct:__anon1
+name	../include/util_commands.h	/^	char* name; \/* command name: "info", "connect", ... *\/$/;"	m	struct:__anon2
+name	../include/util_network.h	/^	char name[MAXLINE]; \/* host name   *\/$/;"	m	struct:__anon3
+network_ip	../include/util_network.h	/^int32_t network_ip;$/;"	v
+network_tcp_port	../include/util_network.h	/^int16_t network_tcp_port;$/;"	v
+network_udp_port	../include/util_network.h	/^int16_t network_udp_port;$/;"	v
+numof_active_conns	./util_network.c	/^int numof_active_conns() {$/;"	f
+numof_peer_token	./util_network.c	/^int numof_peer_token() {$/;"	f
+parseArgLine	./util_network.c	/^int parseArgLine(char * arg_line, char *arg_array[]) {$/;"	f
+payload_length	../include/util_network.h	/^	uint16_t payload_length;$/;"	m	struct:__anon4
+peer_token	../include/util_network.h	/^	char peer_token[TOKEN_LENTH + 1];$/;"	m	struct:__anon5
+process_broadcast_msg	./util_network.c	/^void process_broadcast_msg(msg_header_table *mh, char* msg, int cid) {$/;"	f
+process_private_msg	./util_network.c	/^void process_private_msg(char* msg, int cid) {$/;"	f
+process_received_msg	./util_network.c	/^void process_received_msg(msg_header_table *mh, char msg[], int i) {$/;"	f
+process_salute_msg	./util_network.c	/^void process_salute_msg(char buffer[]) {$/;"	f
+prompt	./cse589_sockets_project.c	/^static void prompt() {$/;"	f	file:
+r_ip	../include/util_network.h	/^	char r_ip[MAXLINE];$/;"	m	struct:__anon5
+r_port	../include/util_network.h	/^	char r_port[MAXLINE];$/;"	m	struct:__anon5
+readline	./util_network.c	/^ssize_t readline(int fd, void *vptr, size_t maxlen) {$/;"	f
+readn	./util_network.c	/^ssize_t readn(int fd, void* vptr, size_t n) {$/;"	f
+ready_switch	./util_commands.c	/^static int ready_switch = 0;$/;"	v	file:
+remote_port	../include/util_network.h	/^	char remote_port[MAXLINE]; \/* remote port *\/$/;"	m	struct:__anon3
+remove_conn	./util_network.c	/^int remove_conn(int conn_id) {$/;"	f
+run_cmd	./util_commands.c	/^void run_cmd(char line[]) {$/;"	f
+send_broadcast_message	./util_network.c	/^void send_broadcast_message() {$/;"	f
+send_message	./util_network.c	/^int send_message(int sock_fd, msg_header_table *mh, char* msg) {$/;"	f
+send_private_message	./util_network.c	/^void send_private_message(char* message, int sock_fd) {$/;"	f
+send_salute_message	./util_network.c	/^void send_salute_message() {$/;"	f
+set_active_conns	./util_network.c	/^void set_active_conns(fd_set* read_set) {$/;"	f
+set_msg_id	./util_network.c	/^void set_msg_id(char *id) {$/;"	f
+show_broc_bag	./util_network.c	/^void show_broc_bag() {$/;"	f
+show_received_token	./util_network.c	/^void show_received_token() {$/;"	f
+sig_child_handler	./util_network.c	/^void sig_child_handler(int signo) {$/;"	f
+simpler_sigaction	./util_network.c	/^simpler_sigaction(int signo, Sigfunc *func) {$/;"	f
+sock_fd	../include/util_network.h	/^	int sock_fd; \/* the socket file descriptor *\/$/;"	m	struct:__anon3
+tcp_connect	./util_network.c	/^int tcp_connect(char *ip, char *port) {$/;"	f
+tcp_fd	../include/util_network.h	/^int tcp_fd;$/;"	v
+tcp_port	../include/util_network.h	/^char tcp_port[MAXLINE];$/;"	v
+throw_exception	./exceptions.c	/^void throw_exception(const int exception_type, const char *formatted_msg, ...) {$/;"	f
+token_container	../include/util_network.h	/^} token_container;$/;"	t	typeref:struct:__anon6
+token_list	../include/util_network.h	/^	char token_list[TOKEN_LENTH + 1];$/;"	m	struct:__anon6
+type	../include/util_network.h	/^	char type;$/;"	m	struct:__anon4
+udp_fd	../include/util_network.h	/^int udp_fd;$/;"	v
+udp_port	../include/util_network.h	/^	uint16_t udp_port;$/;"	m	struct:__anon5
+udp_port	../include/util_network.h	/^char udp_port[MAXLINE];$/;"	v
+writen	./util_network.c	/^ssize_t writen(int fd, const void* vptr, size_t n) {$/;"	f

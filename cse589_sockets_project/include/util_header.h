@@ -48,6 +48,17 @@
 #define NOTE 1
 #define DEBUG 0
 
+//command_table cmd_table[] = { { "info" }, { "ready" }, { "connect" }, { "show-conn", }, { "self-token" }, { "all-tokens" }, { "exit" }, { 0 } };
+/*command config*/
+#define INFO 0
+#define READY 1
+#define CONNECT 2
+#define SHOW_CONNNECTIONS 3
+#define SELF_TOKEN 4
+#define ALL_TOKEN 5
+#define EXIT 6
+#define UNKNOW_COMMAND 7
+
 typedef void Sigfunc(int); /* for signal handlers               */
 
 #define	min(a,b)     ((a) < (b) ? (a) : (b))
@@ -57,9 +68,9 @@ int max_citizen_number;
 
 #define GREETING_MSG "\n\
    **************************************************************\n\
-           \n\
-			Yin Yan, project 2 for Mordern Network Concept\n\
-           \n\
+   \n\
+	Yin Yan, project 2 for Mordern Network Concept\n\
+   \n\
    **************************************************************\n"
 
 #endif /* UTIL_HEADER_H_ */
