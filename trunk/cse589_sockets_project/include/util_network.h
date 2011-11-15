@@ -8,7 +8,7 @@
 #include "util_header.h"
 #include "exceptions.h"
 
-#define LISTENQ	1024     /* for listen() */
+#define LISTENQ	1024     /* for listen() how many request can be hold in Queue*/
 #define SA	struct sockaddr
 
 /* message type */
@@ -35,7 +35,7 @@ char local_ip[INET_ADDRSTRLEN];
 #define MAX_CONNECTIONS 3
 #define MAX_CITIZEN_NUM 20	// max number of citizens
 
-int listen_fd;	// returned by accept()
+int listen_fd;	//socket file descriptor for listening connection
 int tcp_fd;
 int udp_fd;
 
@@ -50,13 +50,13 @@ int16_t network_tcp_port;
  ****************** Connection Table **********************
  * */
 typedef struct {
-	int sock_fd; /* the socket  */
-	int conn_status; /* connection status */
+	int sock_fd; /* the socket file descriptor */
+	int connection_status; /* connection status */
 	char ip[MAXLINE]; /* IP address  */
 	char name[MAXLINE]; /* host name   */
-	char l_port[MAXLINE]; /* local port  */
-	char r_port[MAXLINE]; /* remote port */
-} connection_table;
+	char local_port[MAXLINE]; /* local port  */
+	char remote_port[MAXLINE]; /* remote port */
+} connection_container;
 
 /*
  * **************** Msg Header Table ************************
@@ -82,19 +82,18 @@ typedef struct {
 typedef struct {
 	char token_list[TOKEN_LENTH + 1];
 	int isUsed;
-} token_bag;
+} token_container;
 /*
  * ********************* message bag *********************
  * */
 typedef struct {
 	uint8_t id[ID_LENGTH + 1];
 	int isUsed;
-} message_bag;
+} message_container;
 
 /*
  ************************* utility functions ****************************
  */
-
 // fd table related
 int get_max_fd();
 int get_conn_fd(int conn_id);
@@ -114,12 +113,12 @@ int numof_active_conns();
 int remove_conn(int conn_id);
 void disp_tcp_conn();
 
-// message bag related
-void init_msg_bag();
+// message container
+void init_message_container();
 void add_msg(char *id);
 
-// init token table related
-void init_token_bag();
+//token container related
+void init_token_container();
 void add_init_token(char init_token[]);
 int check_peer_token();
 void cmp_init_token();
