@@ -26,7 +26,7 @@ void run_cmd(char line[]) {
 	int i = 0;//command index
 	int is_cmd, is_connect; // cmd checker
 	char* token = NULL;
-	char temp[MAXLINE] = { '\0' };
+	//char temp[MAXLINE] = { '\0' };
 	char conn_argv[MAXLINE] = { '\0' };
 
 	/* parse command */
@@ -55,7 +55,7 @@ void run_cmd(char line[]) {
 		//ready_handler();
 		break;
 	case 2:
-		//connect_handler(conn_argv);
+		connect_handler(conn_argv);
 		break;
 	case 3:
 		//show_conn_handler();
@@ -81,9 +81,44 @@ void all_tokens_handler() {
 	disp_all_token();
 }
 void exit_handler() {
-	printf("see you!!!");
+	printf("see you!!!\n");
 	exit(1);
 }
 void cmd_not_found() {
 	printf("\n\tcommand not found\n");
+}
+
+void connect_handler(char* argv) {
+	char *arg_array[32]; // argument list for "connect"
+	int j;
+	for (j = 0; j < 32; j++)
+		arg_array[j] = '\0';
+
+	int count;
+	count = numof_active_conns();
+
+	int is_correct = 1;
+	is_correct = parseArgLine(argv, arg_array);
+	if (is_correct != 2){
+		printf("\n\tconnect <ip-address> <tcp-port>\n");
+	}
+	else {
+		char ip[MAXLINE] = "";
+		char port[MAXLINE] = "";
+		strcpy(ip, arg_array[0]);
+		strcpy(port, arg_array[1]);
+		port[strlen(port) - 1] = '\0';
+//		if ((strcmp(ip, local_ip) == 0) && (atoi(port) == atoi(tcp_port)))
+//			throw_exception(ERROR, "\tdon't connect to yourself!");
+//		else {
+			int sock_fd;
+			if (count < MAX_CONNECTIONS) {
+				sock_fd = tcp_connect(ip, port);
+				if (sock_fd != -1)
+					add_conn(sock_fd);
+			} else{
+				throw_exception(ERROR, "\tmaximum number of connections reached");
+			}
+		//}
+	}
 }

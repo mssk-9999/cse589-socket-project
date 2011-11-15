@@ -433,6 +433,15 @@ void add_conn(int sock_fd) {
 	/* get ip, hostname, local port and remote port from sock_fd */
 	getsockinfo(sock_fd, ip, hostname, l_port, r_port);
 
+	printf(ip);
+	printf("\n");
+	printf(hostname);
+	printf("\n");
+	printf(l_port);
+	printf("\n");
+	printf(r_port);
+	printf("\n");
+
 	/* update the connection list */
 	int i;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -520,15 +529,7 @@ int create_udp_socket(char* port) {
 	struct addrinfo hints, *res;
 
 	memset(&hints, 0, sizeof(hints));
-	/*
-	 * AI_PASSIVE causes the result's IP address to be
-	 * filled out with INADDR_ANY (IPv4)or in6addr_any (IPv6);
-	 * this causes a subsequent call to
-	 * bind() to auto-fill the IP address of the struct sockaddr
-	 * with the address of the current host.
-	 * That's excellent for setting up a server
-	 * when you don't want to hardcode the address.
-	 * */
+	//assign the address of my local host to the socket structures
 	hints.ai_flags = AI_PASSIVE;
 	hints.ai_family = PF_INET;
 	hints.ai_socktype = SOCK_DGRAM;

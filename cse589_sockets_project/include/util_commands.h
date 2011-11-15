@@ -9,6 +9,7 @@
 #define UTIL_COMMANDS_C_
 
 #include "util_header.h"
+#include "util_network.h"
 
 #define EMPTY_COMMAND    -1
 
@@ -19,7 +20,7 @@ typedef struct {
 void check_command(int argc, char** argv);
 void info_handler();
 void ready_handler();
-void connect_handler();
+void connect_handler(char* argv);
 void show_conn_handler();
 void self_token_handler();
 void all_tokens_handler();
