@@ -59,15 +59,12 @@ int main(int argc, char** argv) {
 
 		//take connection request
 		if (FD_ISSET(listen_fd, &read_set)) {
-			printf("1111111111111");
 			//error occurs, accept() returns -1 and sets errno
 			tcp_fd = accept(listen_fd, NULL, NULL);
 			if( tcp_fd != -1 ){ //accept successfully
-				printf("22222222");
 				//check wether we have room for this connection
 				if (numof_active_conns() < MAX_CONNECTIONS) {
-					printf("33333");
-					add_conn(tcp_fd);
+					add_connection(tcp_fd);
 					printf("\n new connection established\n");
 				} else {
 					close(tcp_fd);
