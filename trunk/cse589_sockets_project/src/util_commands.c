@@ -115,9 +115,9 @@ void connect_handler(char* argv) {
 			if (count < MAX_CONNECTIONS) {
 				sock_fd = tcp_connect(ip, port);
 				if (sock_fd != -1)
-					add_conn(sock_fd);
+					add_connection(sock_fd);
 			} else{
-				throw_exception(ERROR, "\tmaximum number of connections reached");
+				throw_exception(ERROR, "\t maximum number of connections reached");
 			}
 		}
 	}
