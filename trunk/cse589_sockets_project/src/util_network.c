@@ -426,7 +426,7 @@ int is_new_msg(char *id) {
  * add_conn(int sock_fd): add a new connection to the connection list
  *   return 0 on success, -1 on failure (list full)
  */
-void add_conn(int sock_fd) {
+void add_connection(int sock_fd) {
 	char ip[MAXLINE], hostname[MAXLINE], l_port[MAXLINE], r_port[MAXLINE];
 	/* get ip, hostname, local port and remote port from sock_fd */
 	getsockinfo(sock_fd, ip, hostname, l_port, r_port);

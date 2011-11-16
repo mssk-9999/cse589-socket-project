@@ -108,7 +108,7 @@ int tcp_connect(char *ip, char *port);
 // conn_list related
 void get_conn_info(int conn_id, char ip[], char port[]);
 void init_conn_list();
-void add_conn(int sock_fd);
+void add_connection(int sock_fd);
 int numof_active_conns();
 int remove_conn(int conn_id);
 void display_tcp_connection();
