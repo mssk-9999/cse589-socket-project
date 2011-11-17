@@ -624,7 +624,7 @@ void send_private_message(char* message, int sock_fd) {
 		throw_exception(FATAL_ERROR, "sizeof(m_header) != 12\n");
 	}
 	//send the message to all connections
-	printf("PRIVATE message established, calling send_message()\n");
+	printf("\t PRIVATE message is ready to go, calling send_message()\n");
 	send_message(sock_fd, &m_header, package);
 
 }
