@@ -135,9 +135,9 @@ int main(int argc, char** argv) {
 			// read the message
 			buffer[0] = '\0';
 			bytes_read = recvfrom(udp_fd, buffer, BUF_SIZE, 0, (SA *) &citizen_SA, &len);
-			// printf("read %d bytes UDP packet\n", bytes_read);
+			printf("read %d bytes UDP packet\n", bytes_read);
 			// process and display data just read
-			process_salute_msg(buffer);
+			//process_salute_msg(buffer);
 		}
 
 		prompt();
