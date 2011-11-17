@@ -45,6 +45,13 @@ int main(int argc, char** argv) {
 		FD_SET(STDIN_FILENO, &read_set);
 		//add socket port into set
 		FD_SET(listen_fd, &read_set);
+		//add contected tcp peer
+		int i = 0;
+		for (i = 0; i < MAX_CONNECTIONS; i++) {
+			int socket_fd = get_conn_fd(i);
+			if (socket_fd != -1)
+				FD_SET(socket_fd, &read_set);
+		}
 
 		//keep track of the biggest file descriptor
 		maxfd = max(udp_fd, STDIN_FILENO);
@@ -53,14 +60,14 @@ int main(int argc, char** argv) {
 		maxfd = maxfd + 1;
 
 		if (select(maxfd, &read_set, NULL, NULL, NULL) < 0) {
-			throw_exception(FATAL_ERROR ,"error running select()");
+			throw_exception(FATAL_ERROR, "error running select()");
 		}
 
 		//take connection request
 		if (FD_ISSET(listen_fd, &read_set)) {
 			//error occurs, accept() returns -1 and sets errno
 			tcp_fd = accept(listen_fd, NULL, NULL);
-			if( tcp_fd != -1 ){ //accept successfully
+			if (tcp_fd != -1) { //accept successfully
 				//check wether we have room for this connection
 				if (count_current_connections() < MAX_CONNECTIONS) {
 					add_connection(tcp_fd);
@@ -69,7 +76,7 @@ int main(int argc, char** argv) {
 					close(tcp_fd);
 					fprintf(stderr, "max number of connection reached");
 				}
-			}else{
+			} else {
 				if (errno == EINTR) {
 					continue;
 				} else {
@@ -87,6 +94,45 @@ int main(int argc, char** argv) {
 			}
 			run_cmd(buffer);
 		}
+
+		//check incoming messages from tcp peers
+		for (i = 0; i < MAX_CONNECTIONS; i++) {
+			/* get the ith conn_fd  */
+			int connFd;
+			connFd = get_conn_fd(i);
+			if (connFd != -1) {
+				if (FD_ISSET(connFd, &read_set)) {
+					//read header
+					bytes_read = readn(connFd, buffer, 11);
+					//check the connection status
+					if (bytes_read == 0) {
+						close(connFd);
+						remove_conn(i);
+						printf("Connection number %d was closed by peer", i);
+						continue;
+					} else {
+						//read body
+						message_header m_head;
+						init_header(&m_head);
+						memcpy(m_head.id, buffer, ID_LENGTH);
+						memcpy(&(m_head.type), buffer + ID_LENGTH, 1);
+						memcpy(&(m_head.payload_length), buffer + ID_LENGTH + 1, 2);
+
+						//TODO test
+						if (1) {
+							printf("\ntype is %d\n", ntohs(m_head.type));
+							printf("id is %s\n", m_head.id);
+							printf("length is %u\n", ntohs(m_head.payload_length));
+						}
+
+						/* read the message */
+						bytes_read = readn(connFd, buffer, ntohs(m_head.payload_length));
+
+						process_received_message(&m_head, buffer, i);
+					}
+				}
+			}
+		} /* end of loop */
 
 		prompt();
 	} /* end while (TRUE) */

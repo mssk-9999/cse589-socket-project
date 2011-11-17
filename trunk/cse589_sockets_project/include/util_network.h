@@ -91,7 +91,6 @@ typedef struct {
 // fd table related
 int get_max_fd();
 int get_conn_fd(int conn_id);
-void set_active_conns(fd_set* read_set);
 
 // socket related
 void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port);
@@ -114,7 +113,7 @@ void add_msg(char *id);
 //token container related
 void init_token_container();
 void add_init_token(char init_token[]);
-int check_peer_token();
+int count_init_token();
 void cmp_init_token();
 void show_received_token();
 
@@ -136,7 +135,7 @@ int send_message(int sock_fd, message_header *mh, char* msg);
 void send_private_message(char* message, int sock_fd);
 void send_broadcast_message();
 void send_salute_message();
-void process_received_msg(message_header *mh, char msg[], int cid);
+void process_received_message(message_header *mh, char msg[], int cid);
 void process_private_msg(char* msg, int i);
 void process_broadcast_msg(message_header *mh, char* msg, int cid);
 void process_salute_msg(char buffer[]);
