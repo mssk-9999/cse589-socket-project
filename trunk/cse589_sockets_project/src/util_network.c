@@ -800,7 +800,7 @@ void process_private_msg(char* msg, int cid) {
     int num_tokens = count_init_token();
     int num_peers = count_current_connections();
 
-	if ( num_tokens == num_tokens ) { // received enough tokens
+	if ( num_tokens == num_peers ) { // received enough tokens
 		puts("OK, we have enough tokens, here!!!!!!!!!");
 //		cmp_init_token();
 //		is_peerToken_determined = 1;
