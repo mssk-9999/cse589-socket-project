@@ -60,7 +60,7 @@ void init_leader() {
 /*
  * init_header(): initialize the header
  * */
-void init_header(msg_header_table *mh) {
+void init_header(message_header *mh) {
 	mh->id[0] = '\0';
 	mh->type = '\0';
 	mh->payload_length = 0;
@@ -70,7 +70,7 @@ void init_header(msg_header_table *mh) {
  * */
 int check_peer_token() {
 	int i, a, counter = 0;
-	a = numof_active_conns();
+	a = count_current_connections();
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (init_token_container_list[i].isUsed == 1)
 			counter++;
@@ -292,8 +292,8 @@ void disp_all_token() {
  * , used by show-conn()
  * */
 void display_tcp_connection() {
-	if (numof_active_conns() == 0) {
-		printf("\n\tno active TCP connection\n");
+	if (count_current_connections() == 0) {
+		printf("\n\t No active TCP connection. \n");
 		fflush(stdout);
 		return;
 	}
@@ -324,7 +324,8 @@ void display_tcp_connection() {
 	//print table content
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connection_list[i].connection_status == 1) {
-			printf(" %5d | %-*s | %-*s | %-*s | %-*s\n", i, ip_length, connection_list[i].ip, hostname_length, connection_list[i].name, local_port_length, connection_list[i].local_port, remote_port_length, connection_list[i].remote_port);
+			printf(" %5d | %-*s | %-*s | %-*s | %-*s\n", i, ip_length, connection_list[i].ip, hostname_length, connection_list[i].name, local_port_length, connection_list[i].local_port,
+					remote_port_length, connection_list[i].remote_port);
 		}
 	}
 	fflush(stdout);
@@ -367,7 +368,7 @@ int numof_peer_token() {
 /*
  * numof_active_conns(): returns the number of active TCP connections
  */
-int numof_active_conns() {
+int count_current_connections() {
 	int i, counter = 0;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connection_list[i].connection_status == 1)
@@ -378,7 +379,7 @@ int numof_active_conns() {
 /*
  * get_conn_info(): givin cid, return ip, tcp_port
  * */
-void get_conn_info(int conn_id, char ip[], char port[]) {
+void get_connection_info(int conn_id, char ip[], char port[]) {
 	strncpy(ip, connection_list[conn_id].ip, MAXLINE);
 	strncpy(port, connection_list[conn_id].remote_port, MAXLINE);
 }
@@ -427,18 +428,12 @@ int is_new_msg(char *id) {
  *   return 0 on success, -1 on failure (list full)
  */
 void add_connection(int sock_fd) {
-	char ip[MAXLINE], hostname[MAXLINE], l_port[MAXLINE], r_port[MAXLINE];
+	char ip[MAXLINE], hostname[MAXLINE], local_port[MAXLINE], remote_port[MAXLINE];
 	/* get ip, hostname, local port and remote port from sock_fd */
-	getsockinfo(sock_fd, ip, hostname, l_port, r_port);
+	getsockinfo(sock_fd, ip, hostname, local_port, remote_port);
 
-	printf(ip);
-	printf("\n");
-	printf(hostname);
-	printf("\n");
-	printf(l_port);
-	printf("\n");
-	printf(r_port);
-	printf("\n");
+	/* print out connection info*/
+	printf(" new connection established to %s on %s", ip, local_port);
 
 	/* update the connection list */
 	int i;
@@ -448,40 +443,33 @@ void add_connection(int sock_fd) {
 			connection_list[i].sock_fd = sock_fd;
 			strncpy(connection_list[i].ip, ip, MAXLINE - 1);
 			strncpy(connection_list[i].name, hostname, MAXLINE - 1);
-			strncpy(connection_list[i].local_port, l_port, MAXLINE - 1);
-			strncpy(connection_list[i].remote_port, r_port, MAXLINE - 1);
+			strncpy(connection_list[i].local_port, local_port, MAXLINE - 1);
+			strncpy(connection_list[i].remote_port, remote_port, MAXLINE - 1);
 			break;
 		}
 	}
 }
 /*
- * getsockinfo(): return the citizen's ip, host name, local port,
- *  and remote port in string format
+ *  retrieve the conment tcp request's ip, host name, local port, and remote port
  */
 void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port) {
 	struct sockaddr_in sa;
 	socklen_t sa_len = sizeof(sa);
-
-	/* get sa */
 	getsockname(sock_fd, (SA*) &sa, &sa_len);
-	/* get local port */
 	snprintf(l_port, MAXLINE, "%u", ntohs(sa.sin_port));
-
 	sa_len = sizeof(sa);
 	getpeername(sock_fd, (SA *) &sa, &sa_len);
-	/* get ip */
 	inet_ntop(AF_INET, &sa.sin_addr, ip, MAXLINE);
-
-	/* get hostname and remote port */
 	getnameinfo((SA *) &sa, sa_len, name, MAXLINE, r_port, MAXLINE, NI_NUMERICSERV);
 
 }
 /*
  * create_tcp_socket() : creates a listening socket at port
- * return: the socket descriptor or -1 for error
+ * return: the socket descriptor or -1
+ * -1 stands for errors
  */
 int create_tcp_socket(char* port) {
-	int rv, sockfd = -1;/*new recieved connection, socket file descriptor*/
+	int rv, sockfd = -1;/*new received connection, socket file descriptor*/
 	int yes = 1;
 	struct addrinfo hints, *res;
 
@@ -604,9 +592,9 @@ int tcp_connect(char *ip, char *port) {
 	return (sockfd);
 }
 /*
- * set_randm_id(): set randm 7 digit ID
+ * set_randm_id(): generate and set random 7 digit ID
  * */
-void set_msg_id(char *id) {
+void generate_message_id(char *id) {
 	int a[100] = { 0 };
 	int i, m;
 	char temp[256] = { '\0' };
@@ -633,17 +621,48 @@ void set_msg_id(char *id) {
 	//	printf("random id is %s\n", id);
 }
 /*
+ * send_private_message(): send a tcp message to all connected peers.
+ * write the message one field at a time.
+ */
+void send_private_message(char* message, int sock_fd) {
+	//message body
+	char package[TOKEN_LENTH + 1] = {'\0'};memcpy(package, message, TOKEN_LENTH);
+
+	/* construct header */
+	message_header m_header;
+	m_header.type = PRIVATE;
+	generate_message_id(m_header.id);
+	//convert the local variable to network
+	m_header.payload_length = htons(strlen(package) + 1);
+
+	//@TODO test
+	if ( 1 ) {
+		printf("type is %c\n", m_header.type);
+		printf("id is %s\n", m_header.id);
+		printf("length is %u\n", ntohs(m_header.payload_length));
+	}
+	if (sizeof(m_header) != 12) {
+		printf("message length is %d", sizeof(m_header));
+		throw_exception(FATAL_ERROR, "sizeof(m_header) != 12\n");
+	}
+	//send the message to all connections
+	printf("PRIVATE message established, calling send_message()\n");
+	send_message(sock_fd, &m_header, package);
+
+}
+
+/*
  * send_message(): send header and string
  */
-int send_message(int sock_fd, msg_header_table *mh, char* msg) {
+int send_message(int sock_fd, message_header *m_header, char* msg) {
 	char* message;
 	int len;
 	len = ID_LENGTH + 4 + strlen(msg);
 	message = (char*) malloc(len);
 
-	memcpy(message, mh->id, ID_LENGTH);
-	memcpy(message + ID_LENGTH, &(mh->type), 1);
-	memcpy(message + ID_LENGTH + 1, &(mh->payload_length), 2);
+	memcpy(message, m_header->id, ID_LENGTH);
+	memcpy(message + ID_LENGTH, &(m_header->type), 1);
+	memcpy(message + ID_LENGTH + 1, &(m_header->payload_length), 2);
 	memcpy(message + ID_LENGTH + 3, msg, strlen(msg) + 1);
 
 	if (writen(sock_fd, message, len) < len)
@@ -652,40 +671,7 @@ int send_message(int sock_fd, msg_header_table *mh, char* msg) {
 	free(message);
 	return 0; /* success */
 }
-/*
- * send_private_message(): send a tcp message to all connected peers.
- * write the message one field at a time.
- */
-void send_private_message(char* message, int sock_fd) {
-	/* construct message body */
-	char package[TOKEN_LENTH + 1] =
-	{	'\0'};memcpy(package, message, TOKEN_LENTH);
 
-	/* construct header */
-	msg_header_table mh;
-	mh.type = PRIVATE;
-	set_msg_id(mh.id);
-	mh.payload_length = htons(strlen(package) + 1);
-
-	// test
-	if (0)
-	{
-		printf("type is %c\n", mh.type);
-		printf("id is %s\n", mh.id);
-		printf("length is %u\n", ntohs(mh.payload_length));
-	}
-
-	if (sizeof(mh) != 12)
-	{
-		printf("mh length is %d", sizeof(mh));
-		throw_exception(FATAL_ERROR, "sizeof(mh) != 12\n");
-	}
-
-	/* send the message to all connections */
-	// printf("PRIVATE message established, calling send_message()\n");
-	send_message(sock_fd, &mh, package);
-
-}
 /*
  * send_broadcast_message(): send peer token to all its neighbors
  * */
@@ -740,9 +726,9 @@ void send_broadcast_message() {
 		sock_fd = get_conn_fd(i);
 		if (sock_fd != -1) {
 			/* construct message header */
-			msg_header_table mh;
+			message_header mh;
 			init_header(&mh);
-			set_msg_id(mh.id);
+			generate_message_id(mh.id);
 			mh.type = BROADCAST;
 			mh.payload_length = htons(strlen(package) + 1);
 
@@ -795,7 +781,7 @@ void send_salute_message() {
 /*
  * process_received_private()
  * */
-void process_received_msg(msg_header_table *mh, char msg[], int i) {
+void process_received_msg(message_header *mh, char msg[], int i) {
 	if (mh->type == PRIVATE)
 	{
 		puts("\n\n\tPRIVATE message received");
@@ -819,15 +805,13 @@ void process_received_msg(msg_header_table *mh, char msg[], int i) {
  */
 void process_private_msg(char* msg, int cid) {
 	/* construct private_msg */
-	char init_token[TOKEN_LENTH + 1] =
-	{	'\0'};char ip[MAXLINE] =
-	{	'\0'};
-	char tcp_port[MAXLINE] =
-	{	'\0'};
+	char init_token[TOKEN_LENTH + 1] = {'\0'};
+	char ip[MAXLINE] = {'\0'};
+	char tcp_port[MAXLINE] = {'\0'};
 
 	strncpy(init_token, msg, TOKEN_LENTH);
 // get sender's information
-	get_conn_info(cid, ip, tcp_port);
+	get_connection_info(cid, ip, tcp_port);
 	printf("\tgot init_token: %s from %s:%s\n", init_token, ip, tcp_port);
 // add into token bag
 	add_init_token(init_token);
@@ -844,7 +828,7 @@ void process_private_msg(char* msg, int cid) {
 /*
  * process_broadcast_mse(): deal with all broadcast message and forward
  * */
-void process_broadcast_msg(msg_header_table *mh, char* msg, int cid) {
+void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	if (0) { // test package
 		printf("process_broadcast_msg(): message length %d\n", strlen(msg));
 		uint16_t in_port = 0;
@@ -875,7 +859,7 @@ void process_broadcast_msg(msg_header_table *mh, char* msg, int cid) {
 	char r_port[MAXLINE] = { '\0' };
 	char temp_ip[MAXLINE] = { '\0' };
 
-	get_conn_info(cid, temp_ip, r_port);
+	get_connection_info(cid, temp_ip, r_port);
 	add_broc_msg(source_token, source_udp_port, source_ip, r_port);
 
 	if (0) {

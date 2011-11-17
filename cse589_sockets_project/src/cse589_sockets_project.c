@@ -47,15 +47,14 @@ int main(int argc, char** argv) {
 		FD_SET(listen_fd, &read_set);
 
 		//keep track of the biggest file descriptor
-		maxfd = max(udp_fd, STDIN_FILENO); /* UDP or standard input? */
-		maxfd = max(maxfd, listen_fd); /* is TCP higher? */
-		maxfd = max(maxfd, get_max_fd()); /* is the existed fds higher? */
-		maxfd = maxfd + 1; /* give the highest priority to maxfd for select()*/
+		maxfd = max(udp_fd, STDIN_FILENO);
+		maxfd = max(maxfd, listen_fd);
+		maxfd = max(maxfd, get_max_fd());
+		maxfd = maxfd + 1;
 
-		/* now we are ready to use select() */
 		if (select(maxfd, &read_set, NULL, NULL, NULL) < 0) {
 			throw_exception(FATAL_ERROR ,"error running select()");
-		} /* now the read_set has been renewed */
+		}
 
 		//take connection request
 		if (FD_ISSET(listen_fd, &read_set)) {
@@ -63,7 +62,7 @@ int main(int argc, char** argv) {
 			tcp_fd = accept(listen_fd, NULL, NULL);
 			if( tcp_fd != -1 ){ //accept successfully
 				//check wether we have room for this connection
-				if (numof_active_conns() < MAX_CONNECTIONS) {
+				if (count_current_connections() < MAX_CONNECTIONS) {
 					add_connection(tcp_fd);
 					printf("\n new connection established\n");
 				} else {
@@ -72,9 +71,6 @@ int main(int argc, char** argv) {
 				}
 			}else{
 				if (errno == EINTR) {
-					/* when a child connection closed,
-					 * parent will generate a interupt signal,
-					 * so jump out of the loop to select() again */
 					continue;
 				} else {
 					throw_exception(WARNING, "error accepting new connections\n");
@@ -83,11 +79,11 @@ int main(int argc, char** argv) {
 			}
 		} /* end of FD_ISSET() checking */
 
-		/* check standard input */
+		//check standard input
 		if (FD_ISSET(STDIN_FILENO, &read_set)) {
 			if (fgets(buffer, BUF_SIZE, stdin) == NULL) {
 				putchar('\n');
-				break; /* Ctrl^D was typed, jump out of the infinite while loop */
+				break;
 			}
 			run_cmd(buffer);
 		}
