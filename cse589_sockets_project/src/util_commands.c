@@ -153,7 +153,7 @@ void ready() {
 					char ip[MAXLINE] = {'\0'};
 					char port[MAXLINE] = {'\0'};
 					get_connection_info(i, ip, port);
-					printf("\t Enter the initial token for %s \n", ip[MAXLINE]);
+					printf("\t Enter the initial token for %s \n", ip);
 					if (fgets(buffer, BUF_SIZE, stdin) == NULL) {
 						putchar('\n');
 						exit(1); /* Ctrl^D */
