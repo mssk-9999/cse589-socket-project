@@ -65,20 +65,16 @@ void init_header(message_header *mh) {
 	mh->type = '\0';
 	mh->payload_length = 0;
 }
-/*
- * check_received_token() : check to determined peer token
- * */
-int check_peer_token() {
-	int i, a, counter = 0;
-	a = count_current_connections();
+
+//count the number of token that have recieced
+int count_init_token() {
+	int i, counter = 0;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (init_token_container_list[i].isUsed == 1)
 			counter++;
 	}
-	if (a == counter)
-		return 1;
-	else
-		return 0;
+
+	return counter;
 }
 int get_self_token(char token[]) {
 	if (strlen(my_broc_msg.peer_token) != 0) {
@@ -172,9 +168,8 @@ void show_received_token() {
 			printf("I have %s in token_bag\n", init_token_container_list[i].token_list);
 	}
 }
-/*
- * add_init_token(): add token to token_bag, waiting to be sorted
- * */
+
+//add init token
 void add_init_token(char init_token[]) {
 	int i;
 	int flag = 0;
@@ -343,17 +338,7 @@ int get_max_fd() {
 	}
 	return maxfd;
 }
-/*
- * set_active_conns(fd_set*): mark all sock_fd of active connections for select()
- */
-void set_active_conns(fd_set* read_set) {
-	int i;
-	for (i = 0; i < MAX_CONNECTIONS; i++) {
-		if (connection_list[i].connection_status == 1) {
-			FD_SET(connection_list[i].sock_fd, read_set);
-		}
-	}
-}
+
 /*
  * numof_peer_token(): returns the number of active TCP connections
  */
@@ -635,7 +620,7 @@ void send_private_message(char* message, int sock_fd) {
 	//convert the local variable to network
 	m_header.payload_length = htons(strlen(package) + 1);
 
-	//@TODO test
+	//TODO test
 	if ( 1 ) {
 		printf("type is %c\n", m_header.type);
 		printf("id is %s\n", m_header.id);
@@ -695,9 +680,8 @@ void send_broadcast_message() {
 	add_broc_msg(my_broc_msg.peer_token, my_broc_msg.udp_port, my_broc_msg.ip, tcp_port);
 
 	/* construct message body */
-	char package[TOKEN_LENTH + 7] =
-	{	'\0'};memcpy
-	(package, my_broc_msg.peer_token, TOKEN_LENTH);
+	char package[TOKEN_LENTH + 7] ={'\0'};
+	memcpy(package, my_broc_msg.peer_token, TOKEN_LENTH);
 	memcpy(package + TOKEN_LENTH, &my_broc_msg.ip, 4);
 	memcpy(package + TOKEN_LENTH + 4, &my_broc_msg.udp_port, 2);
 
@@ -781,14 +765,12 @@ void send_salute_message() {
 /*
  * process_received_private()
  * */
-void process_received_msg(message_header *mh, char msg[], int i) {
-	if (mh->type == PRIVATE)
-	{
-		puts("\n\n\tPRIVATE message received");
+void process_received_message(message_header *mh, char msg[], int i) {
+	if (mh->type == PRIVATE) {
+		puts("\n\n\t receive message on TCP port ... \n");
 		process_private_msg(msg, i);
-	} else if (mh->type == BROADCAST)
-	{
-		puts("\n\n\tBROADCAST message received");
+	} else if (mh->type == BROADCAST) {
+		puts("\n\n\t Receive message on UDP port ... \n");
 		if (is_new_msg(mh->id)) {
 			add_msg(mh->id);
 			process_broadcast_msg(mh, msg, i);
@@ -796,40 +778,42 @@ void process_received_msg(message_header *mh, char msg[], int i) {
 			throw_exception(NOTE, "duplicate message droped");
 			return;
 		}
-	} else
+	} else {
 		throw_exception(NOTE, "wrong type: message ignored");
-
+	}
 }
 /*
  * process_private_msg(): deal with all private message
  */
 void process_private_msg(char* msg, int cid) {
 	/* construct private_msg */
-	char init_token[TOKEN_LENTH + 1] = {'\0'};
-	char ip[MAXLINE] = {'\0'};
+	char init_token[TOKEN_LENTH + 1] = {'\0'};char ip[MAXLINE] = {'\0'};
 	char tcp_port[MAXLINE] = {'\0'};
 
 	strncpy(init_token, msg, TOKEN_LENTH);
-// get sender's information
+	//sender infomation
 	get_connection_info(cid, ip, tcp_port);
 	printf("\tgot init_token: %s from %s:%s\n", init_token, ip, tcp_port);
-// add into token bag
 	add_init_token(init_token);
-// show_received_token();
+    show_received_token();
 
-	if (check_peer_token())
-	{ // received enough tokens
-		cmp_init_token();
-		is_peerToken_determined = 1;
-		printf("\tpeer token determined: %s\n", my_broc_msg.peer_token);
-		send_broadcast_message();
+    int num_tokens = count_init_token();
+    int num_peers = count_current_connections();
+
+	if ( num_tokens == num_tokens ) { // received enough tokens
+		puts("OK, we have enough tokens, here!!!!!!!!!");
+//		cmp_init_token();
+//		is_peerToken_determined = 1;
+//		printf("\tpeer token determined: %s\n", my_broc_msg.peer_token);
+//		send_broadcast_message();
 	}
 }
 /*
  * process_broadcast_mse(): deal with all broadcast message and forward
  * */
 void process_broadcast_msg(message_header *mh, char* msg, int cid) {
-	if (0) { // test package
+	//TODO test
+	if (1) { // test package
 		printf("process_broadcast_msg(): message length %d\n", strlen(msg));
 		uint16_t in_port = 0;
 		uint32_t in_ip = 0;
@@ -847,22 +831,21 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\tgot peer_token: %s\n", in_token);
 
-	char source_token[TOKEN_LENTH + 1] =
-	{	'\0'};uint32_t
-	source_ip = 0;
+	char source_token[TOKEN_LENTH + 1] ={'\0'};
+	uint32_t source_ip = 0;
 	uint16_t source_udp_port = 0;
 
 	memcpy(source_token, msg, TOKEN_LENTH);
 	memcpy(&source_ip, msg + TOKEN_LENTH, 4);
 	memcpy(&source_udp_port, msg + TOKEN_LENTH + 4, 2);
 
-	char r_port[MAXLINE] = { '\0' };
+	char remote_port[MAXLINE] = { '\0' };
 	char temp_ip[MAXLINE] = { '\0' };
 
-	get_connection_info(cid, temp_ip, r_port);
-	add_broc_msg(source_token, source_udp_port, source_ip, r_port);
-
-	if (0) {
+	get_connection_info(cid, temp_ip, remote_port);
+	add_broc_msg(source_token, source_udp_port, source_ip, remote_port);
+	//TODO test
+	if (1) {
 		show_broc_bag();
 	}
 
@@ -910,11 +893,10 @@ ssize_t readn(int fd, void* vptr, size_t n) {
 
 	ptr = vptr;
 	nleft = n;
-	while (nleft > 0) { /* keep reading upto n bytes     */
+	while (nleft > 0) {
 		if ((nread = read(fd, ptr, nleft)) < 0) {
-			if (errno == EINTR)
-			{ /* got interrupted by a signal ? */
-				nread = 0; /* try calling read() again      */
+			if (errno == EINTR) {
+				nread = 0;
 			} else {
 				return (-1);
 			}
@@ -925,7 +907,7 @@ ssize_t readn(int fd, void* vptr, size_t n) {
 		ptr += nread;
 	}
 
-	return (n - nleft); /* return >= 0 */
+	return (n - nleft);
 }
 /*
  * ----------------------------------------------------------------------------
@@ -943,9 +925,8 @@ ssize_t writen(int fd, const void* vptr, size_t n) {
 	nleft = n;
 	while (nleft > 0) {
 		if ((nwritten = write(fd, ptr, nleft)) <= 0) {
-			if (errno == EINTR)
-			{ /* interrupted by a signal ? */
-				nwritten = 0; /* try call write() again    */
+			if (errno == EINTR) {
+				nwritten = 0;
 			} else {
 				return (-1);
 			}
