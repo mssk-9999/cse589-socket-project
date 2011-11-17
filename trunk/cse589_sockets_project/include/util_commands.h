@@ -19,9 +19,9 @@ typedef struct {
 
 void check_command(int argc, char** argv);
 void info_handler();
-void ready_handler();
-void connect_handler(char* argv);
-void show_conn_handler();
+void ready();
+void establish_connection(char* argv);
+void show_connections();
 void self_token_handler();
 void all_tokens_handler();
 void exit_handler();

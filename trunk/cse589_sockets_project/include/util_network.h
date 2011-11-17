@@ -16,7 +16,7 @@
 #define BROADCAST 0x01
 #define SALUTE 0x10
 
-/* message id length */
+/* message length */
 #define ID_LENGTH 8
 #define TOKEN_LENTH 10
 #define SALUTE_LENGTH 26
@@ -46,26 +46,22 @@ int32_t network_ip;
 int16_t network_udp_port;
 int16_t network_tcp_port;
 
-/*
- ****************** Connection Table **********************
- * */
+/****************** Connection container ********************/
 typedef struct {
-	int sock_fd; /* the socket file descriptor */
-	int connection_status; /* connection status */
-	char ip[MAXLINE]; /* IP address  */
-	char name[MAXLINE]; /* host name   */
-	char local_port[MAXLINE]; /* local port  */
-	char remote_port[MAXLINE]; /* remote port */
+	int sock_fd; //the socket file descriptor
+	int connection_status; //connection status
+	char ip[MAXLINE]; //IP address
+	char name[MAXLINE]; //host name
+	char local_port[MAXLINE]; //local port
+	char remote_port[MAXLINE]; //remote port
 } connection_container;
 
-/*
- * **************** Msg Header Table ************************
- * */
+/****************** Msg Header Table ************************/
 typedef struct {
 	char id[ID_LENGTH + 1];
 	char type;
 	uint16_t payload_length;
-} msg_header_table;
+} message_header;
 
 typedef struct {
 	char peer_token[TOKEN_LENTH + 1];
@@ -76,9 +72,7 @@ typedef struct {
 	int isUsed;
 } broadcast_bag;
 
-/*
- * ********************* token bag ***********************
- * */
+/********************** token bag *************************/
 typedef struct {
 	char token_list[TOKEN_LENTH + 1];
 	int isUsed;
@@ -106,10 +100,10 @@ int create_udp_socket(char* port);
 int tcp_connect(char *ip, char *port);
 
 // conn_list related
-void get_conn_info(int conn_id, char ip[], char port[]);
+void get_connection_info(int conn_id, char ip[], char port[]);
 void init_conn_list();
 void add_connection(int sock_fd);
-int numof_active_conns();
+int count_current_connections();
 int remove_conn(int conn_id);
 void display_tcp_connection();
 
@@ -135,16 +129,16 @@ void disp_all_token();
 int get_self_token(char token[]);
 
 // message related
-void set_msg_id(char *id);
+void generate_message_id(char *id);
 int is_new_msg(char *id);
-void init_header(msg_header_table *mh);
-int send_message(int sock_fd, msg_header_table *mh, char* msg);
+void init_header(message_header *mh);
+int send_message(int sock_fd, message_header *mh, char* msg);
 void send_private_message(char* message, int sock_fd);
 void send_broadcast_message();
 void send_salute_message();
-void process_received_msg(msg_header_table *mh, char msg[], int cid);
+void process_received_msg(message_header *mh, char msg[], int cid);
 void process_private_msg(char* msg, int i);
-void process_broadcast_msg(msg_header_table *mh, char* msg, int cid);
+void process_broadcast_msg(message_header *mh, char* msg, int cid);
 void process_salute_msg(char buffer[]);
 
 // misc
