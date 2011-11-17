@@ -117,14 +117,6 @@ int main(int argc, char** argv) {
 						memcpy(m_head.id, buffer, ID_LENGTH);
 						memcpy(&(m_head.type), buffer + ID_LENGTH, 1);
 						memcpy(&(m_head.payload_length), buffer + ID_LENGTH + 1, 2);
-
-						//TODO test
-						if (1) {
-							printf("\ntype is %d\n", ntohs(m_head.type));
-							printf("id is %s\n", m_head.id);
-							printf("length is %u\n", ntohs(m_head.payload_length));
-						}
-
 						/* read the message */
 						bytes_read = readn(connFd, buffer, ntohs(m_head.payload_length));
 
