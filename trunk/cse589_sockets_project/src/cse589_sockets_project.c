@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 		FD_ZERO(&read_set);
 		//add std input into set
 		FD_SET(STDIN_FILENO, &read_set);
-		//add socket port into set
+		//add tcp port into set
 		FD_SET(listen_fd, &read_set);
 		//add contected tcp peer
 		int i = 0;
@@ -52,6 +52,8 @@ int main(int argc, char** argv) {
 			if (socket_fd != -1)
 				FD_SET(socket_fd, &read_set);
 		}
+		//add udp port into set
+		FD_SET(udp_fd, &read_set);
 
 		//keep track of the biggest file descriptor
 		maxfd = max(udp_fd, STDIN_FILENO);
@@ -125,6 +127,18 @@ int main(int argc, char** argv) {
 				}
 			}
 		} /* end of loop */
+		//check for message from udp boradcast
+		if (FD_ISSET(udp_fd, &read_set)) {
+			struct sockaddr_in citizen_SA;
+			socklen_t len;
+			len = sizeof(citizen_SA);
+			// read the message
+			buffer[0] = '\0';
+			bytes_read = recvfrom(udp_fd, buffer, BUF_SIZE, 0, (SA *) &citizen_SA, &len);
+			// printf("read %d bytes UDP packet\n", bytes_read);
+			// process and display data just read
+			process_salute_msg(buffer);
+		}
 
 		prompt();
 	} /* end while (TRUE) */
@@ -166,15 +180,12 @@ void init(int argc, char** argv) {
 
 	//start tcp and udp listening port
 	listen_fd = create_tcp_socket(tcp_port);
-//	udp_fd = create_udp_socket(udp_port);
+	udp_fd = create_udp_socket(udp_port);
 	init_conn_list();
 	init_token_container();
-//  initialize message bag
 	init_message_container();
-//	// initialize broadcast bag
-//	init_broc_bag();
-//	// initialize leader
-//	init_leader();
+	init_recieve_udp_message_container();
+	init_leader();
 	////////////////////////////////
 	return;
 }

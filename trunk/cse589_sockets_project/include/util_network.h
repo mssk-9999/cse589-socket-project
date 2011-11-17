@@ -67,10 +67,10 @@ typedef struct {
 	char peer_token[TOKEN_LENTH + 1];
 	uint32_t ip;
 	uint16_t udp_port;
-	char r_ip[MAXLINE];
-	char r_port[MAXLINE];
+	char remote_ip[MAXLINE];
+	char remote_port[MAXLINE];
 	int isUsed;
-} broadcast_bag;
+} udp_message_struct;
 
 /********************** token bag *************************/
 typedef struct {
@@ -114,17 +114,16 @@ void add_msg(char *id);
 void init_token_container();
 void add_init_token(char init_token[]);
 int count_init_token();
-void cmp_init_token();
+void get_peer_token();
 void show_received_token();
 
 // broadcast table related
-void init_broc_bag();
+void init_recieve_udp_message_container();
 void init_leader();
 void find_leader();
-void add_broc_msg(char peer_token[], uint16_t udp_port, uint32_t ip,
-		char r_port[]);
+void add_udp_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]);
 int numof_peer_token();
-void disp_all_token();
+void display_all_token();
 int get_self_token(char token[]);
 
 // message related
@@ -133,7 +132,7 @@ int is_new_msg(char *id);
 void init_header(message_header *mh);
 int send_message(int sock_fd, message_header *mh, char* msg);
 void send_private_message(char* message, int sock_fd);
-void send_broadcast_message();
+void send_upd_message();
 void send_salute_message();
 void process_received_message(message_header *mh, char msg[], int cid);
 void process_private_msg(char* msg, int i);

@@ -65,7 +65,7 @@ void run_cmd(char line[]) {
 		//self_token_handler();
 		break;
 	case 5:
-		//all_tokens_handler();
+		show_received_tokens();
 		break;
 	case 6:
 		exit_handler();
@@ -78,8 +78,8 @@ void run_cmd(char line[]) {
 	}
 }
 
-void all_tokens_handler() {
-	disp_all_token();
+void show_received_tokens() {
+	display_all_token();
 }
 void exit_handler() {
 	printf("see you!!!\n");

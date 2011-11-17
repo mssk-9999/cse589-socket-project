@@ -23,7 +23,7 @@ void ready();
 void establish_connection(char* argv);
 void show_connections();
 void self_token_handler();
-void all_tokens_handler();
+void show_received_tokens();
 void exit_handler();
 void cmd_not_found();
 void run_cmd(char line[]);

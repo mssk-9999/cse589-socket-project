@@ -10,56 +10,37 @@
  **************** GLOBLE VARIABLES *******************
  * */
 static int is_peerToken_determined = 0;
-// my own message for broadcasting
-static broadcast_bag my_broc_msg;
+// my own message for udp message for broadcasting
+static udp_message_struct self_peer_msg;
 // leader infomation
-static broadcast_bag leader;
-
-/*
- **************** CONNECTION TABLE *******************
- * */
+static udp_message_struct leader;
 static connection_container connection_list[MAX_CONNECTIONS];
-/*
- **************** INITIAL TOKEN BAG ******************
- * */
 static token_container init_token_container_list[MAX_CONNECTIONS];
-/*
- **************** MESSAGE BAG ************************
- * */
 static message_container msg_container_list[MAX_CITIZEN_NUM];
-/*
- **************** PEER TOKEN BAG *********************
- * */
-static broadcast_bag broc_bag[MAX_CITIZEN_NUM];
+//recieved udp message list
+static udp_message_struct recieved_upd_msg_container[MAX_CITIZEN_NUM];
 
-/*
- * init_broc_bag(): initialize broadcast bag
- * */
-void init_broc_bag() {
+void init_recieve_udp_message_container() {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		broc_bag[i].ip = '\0';
-		broc_bag[i].udp_port = '\0';
-		broc_bag[i].peer_token[0] = '\0';
-		broc_bag[i].r_ip[0] = '\0';
-		broc_bag[i].r_port[0] = '\0';
-		broc_bag[i].isUsed = 0;
+		recieved_upd_msg_container[i].ip = '\0';
+		recieved_upd_msg_container[i].udp_port = '\0';
+		recieved_upd_msg_container[i].peer_token[0] = '\0';
+		recieved_upd_msg_container[i].remote_ip[0] = '\0';
+		recieved_upd_msg_container[i].remote_port[0] = '\0';
+		recieved_upd_msg_container[i].isUsed = 0;
 	}
 }
-/*
- * init_single_broc_bag(): initialize broadcast bag
- * */
+
 void init_leader() {
 	leader.ip = '\0';
 	leader.udp_port = '\0';
 	leader.peer_token[0] = '\0';
-	leader.r_ip[0] = '\0';
-	leader.r_port[0] = '\0';
+	leader.remote_ip[0] = '\0';
+	leader.remote_port[0] = '\0';
 	leader.isUsed = 0;
 }
-/*
- * init_header(): initialize the header
- * */
+
 void init_header(message_header *mh) {
 	mh->id[0] = '\0';
 	mh->type = '\0';
@@ -77,8 +58,8 @@ int count_init_token() {
 	return counter;
 }
 int get_self_token(char token[]) {
-	if (strlen(my_broc_msg.peer_token) != 0) {
-		strncpy(token, my_broc_msg.peer_token, TOKEN_LENTH);
+	if (strlen(self_peer_msg.peer_token) != 0) {
+		strncpy(token, self_peer_msg.peer_token, TOKEN_LENTH);
 		return 1;
 	} else
 		return 0;
@@ -114,34 +95,32 @@ void add_msg(char *id) {
 		}
 	}
 }
-/*
- * add_broc_msg(): add new broadcast message to the broc_bag
- * */
-void add_broc_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]) {
+
+void add_udp_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]) {
 	int i;
 	int flag = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (broc_bag[i].isUsed == 0 && flag == 0) {
+		if (recieved_upd_msg_container[i].isUsed == 0 && flag == 0) {
 			// add ip in big-endian
-			broc_bag[i].ip = ip;
+			recieved_upd_msg_container[i].ip = ip;
 			// add ip in little-endian
 			char s_ip[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &(broc_bag[i].ip), s_ip, INET_ADDRSTRLEN);
-			strncpy(broc_bag[i].r_ip, s_ip, strlen(s_ip));
+			inet_ntop(AF_INET, &(recieved_upd_msg_container[i].ip), s_ip, INET_ADDRSTRLEN);
+			strncpy(recieved_upd_msg_container[i].remote_ip, s_ip, strlen(s_ip));
 			// add udp port in big-endian
-			broc_bag[i].udp_port = udp_port;
+			recieved_upd_msg_container[i].udp_port = udp_port;
 			// add udp port in little-endian
-			strncpy(broc_bag[i].peer_token, peer_token, TOKEN_LENTH);
-			strncpy(broc_bag[i].r_port, r_port, strlen(r_port));
+			strncpy(recieved_upd_msg_container[i].peer_token, peer_token, TOKEN_LENTH);
+			strncpy(recieved_upd_msg_container[i].remote_port, r_port, strlen(r_port));
 			// add signal
-			broc_bag[i].isUsed = 1;
+			recieved_upd_msg_container[i].isUsed = 1;
 			flag = 1;
 		}
 	}
 	// check if broadcast bag have n citizen's peer token
 	if (numof_peer_token() == max_citizen_number) {
 		find_leader();
-		printf("\tleader(%s) is from %s:%d\n", leader.peer_token, leader.r_ip, ntohs(leader.udp_port));
+		printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
 		send_salute_message();
 	}
 }
@@ -151,10 +130,10 @@ void add_broc_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port
 void show_broc_bag() {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (broc_bag[i].isUsed == 1) {
+		if (recieved_upd_msg_container[i].isUsed == 1) {
 			char source_ip[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &(broc_bag[i].ip), source_ip, INET_ADDRSTRLEN);
-			printf("Broc_bag: i have token: <%s>  ip: <%s> udp_port: <%d>\n", broc_bag[i].peer_token, source_ip, ntohs(broc_bag[i].udp_port));
+			inet_ntop(AF_INET, &(recieved_upd_msg_container[i].ip), source_ip, INET_ADDRSTRLEN);
+			printf("Broc_bag: i have token: <%s>  ip: <%s> udp_port: <%d>\n", recieved_upd_msg_container[i].peer_token, source_ip, ntohs(recieved_upd_msg_container[i].udp_port));
 		}
 	}
 }
@@ -181,10 +160,8 @@ void add_init_token(char init_token[]) {
 		}
 	}
 }
-/*
- *  token_cmp(): find biggest token as its peertoken
- * */
-void cmp_init_token() {
+
+void get_peer_token() {
 	int z;
 	long long int temp = 0;
 	long long int max_t = 0;
@@ -194,7 +171,7 @@ void cmp_init_token() {
 			max_t = max(max_t, temp);
 		}
 	}
-	sprintf(my_broc_msg.peer_token, "%lld", max_t);
+	sprintf(self_peer_msg.peer_token, "%lld", max_t);
 }
 /*
  *  find_leader(): find biggest peer token as our leader
@@ -205,11 +182,11 @@ void find_leader() {
 	long long int temp2 = 0;
 
 	for (z = 0; z < MAX_CITIZEN_NUM; z++) {
-		if (broc_bag[z].isUsed == 1) {
-			temp1 = strtoll(broc_bag[z].peer_token, NULL, 0);
+		if (recieved_upd_msg_container[z].isUsed == 1) {
+			temp1 = strtoll(recieved_upd_msg_container[z].peer_token, NULL, 0);
 			temp2 = strtoll(leader.peer_token, NULL, 0);
 			if (temp1 >= temp2)
-				leader = broc_bag[z];
+				leader = recieved_upd_msg_container[z];
 		}
 	}
 }
@@ -241,11 +218,8 @@ void init_conn_list() {
 		(connection_list[i].remote_port)[0] = '\0';
 	}
 }
-/*
- * disp_all_token(): used for display formatted infomations
- * , used by all-token()
- * */
-void disp_all_token() {
+
+void display_all_token() {
 	if (numof_peer_token() == 0) {
 		printf("\n\tno peer token received\n");
 		fflush(stdout);
@@ -258,10 +232,10 @@ void disp_all_token() {
 	// find out how long each field needs to be
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (broc_bag[i].isUsed == 1) {
-			a = max(a, strlen(broc_bag[i].r_ip));
-			b = max(b, strlen(broc_bag[i].r_port));
-			c = max(c, strlen(broc_bag[i].peer_token));
+		if (recieved_upd_msg_container[i].isUsed == 1) {
+			a = max(a, strlen(recieved_upd_msg_container[i].remote_ip));
+			b = max(b, strlen(recieved_upd_msg_container[i].remote_port));
+			c = max(c, strlen(recieved_upd_msg_container[i].peer_token));
 		}
 	}
 	putchar('\n');
@@ -276,8 +250,8 @@ void disp_all_token() {
 	putchar('\n');
 
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (broc_bag[i].isUsed == 1) {
-			printf(" %-*s | %-*s | %-*s\n", a, broc_bag[i].r_ip, b, broc_bag[i].r_port, c, broc_bag[i].peer_token);
+		if (recieved_upd_msg_container[i].isUsed == 1) {
+			printf(" %-*s | %-*s | %-*s\n", a, recieved_upd_msg_container[i].remote_ip, b, recieved_upd_msg_container[i].remote_port, c, recieved_upd_msg_container[i].peer_token);
 		}
 	}
 	fflush(stdout);
@@ -339,13 +313,10 @@ int get_max_fd() {
 	return maxfd;
 }
 
-/*
- * numof_peer_token(): returns the number of active TCP connections
- */
 int numof_peer_token() {
 	int i, counter = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (broc_bag[i].isUsed == 1)
+		if (recieved_upd_msg_container[i].isUsed == 1)
 			counter++;
 	}
 	return counter;
@@ -650,36 +621,34 @@ int send_message(int sock_fd, message_header *m_header, char* msg) {
 	return 0; /* success */
 }
 
-/*
- * send_broadcast_message(): send peer token to all its neighbors
- * */
-void send_broadcast_message() {
+void send_udp_message() {
 	// double check for network variables
-	my_broc_msg.ip = network_ip;
-	my_broc_msg.udp_port = network_udp_port;
-
-	if (0) {
+	self_peer_msg.ip = network_ip;
+	self_peer_msg.udp_port = network_udp_port;
+	//TODO test
+	if (1) {
 		// check my ip address
 		char source_ip[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &network_ip, source_ip, INET_ADDRSTRLEN);
-		printf("my ip is %s\n", source_ip);
+		printf(" my ip is %s \n", source_ip);
 		// check my udp port
-		printf("udp_port is %d now\n", ntohs(network_udp_port));
+		printf(" udp_port is %d now \n", ntohs(network_udp_port));
 		// check my peer_token
-		printf("my peer token is %s\n", my_broc_msg.peer_token);
+		printf(" my peer token is %s \n", self_peer_msg.peer_token);
 	}
 
 	/* add my own broadcast message into broc_bag */
-	add_broc_msg(my_broc_msg.peer_token, my_broc_msg.udp_port, my_broc_msg.ip, tcp_port);
+	add_udp_msg(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
 
 	/* construct message body */
 	char package[TOKEN_LENTH + 7] ={'\0'};
-	memcpy(package, my_broc_msg.peer_token, TOKEN_LENTH);
-	memcpy(package + TOKEN_LENTH, &my_broc_msg.ip, 4);
-	memcpy(package + TOKEN_LENTH + 4, &my_broc_msg.udp_port, 2);
+	memcpy(package, self_peer_msg.peer_token, TOKEN_LENTH);
+	memcpy(package + TOKEN_LENTH, &self_peer_msg.ip, 4);
+	memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
-	if (0) { // test package
-		printf("after construction, %d bits long broc_package is %s\n", strlen(package), package);
+	//TODO test
+	if (1) { // test package
+		printf("after construction, %d bits long udp message is %s \n", strlen(package), package);
 		char in_token[11] = { '\0' };
 		uint16_t in_port = 0;
 		uint32_t in_ip = 0;
@@ -737,7 +706,7 @@ void send_salute_message() {
 	char salute[SALUTE_LENGTH] = "ALL HALL THE MIGHTY LEADER";
 
 	/* construct message body */
-	memcpy(message, my_broc_msg.peer_token, TOKEN_LENTH);
+	memcpy(message, self_peer_msg.peer_token, TOKEN_LENTH);
 	memcpy(message + TOKEN_LENTH, salute, SALUTE_LENGTH);
 
 	/* construct variables for sendto() */
@@ -750,9 +719,9 @@ void send_salute_message() {
 
 	/* now we can send to udp */
 	if (sendto(udp_fd, message, msg_len, 0, (SA *) &leader_addr, sizeof(leader_addr)) < 0) {
-		throw_exception(ERROR, "\terror sending salute packet to %s, port:%d", leader.r_ip, ntohs(leader.udp_port));
+		throw_exception(ERROR, "\terror sending salute packet to %s, port:%d", leader.remote_ip, ntohs(leader.udp_port));
 	} else {
-		printf("\tSALLUTE message was sent to host %s, port %d\n", leader.r_ip, ntohs(leader.udp_port));
+		printf("\tSALLUTE message was sent to host %s, port %d\n", leader.remote_ip, ntohs(leader.udp_port));
 	}
 }
 /*
@@ -768,7 +737,7 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			add_msg(mh->id);
 			process_broadcast_msg(mh, msg, i);
 		} else {
-			throw_exception(NOTE, "duplicate message droped");
+			throw_exception(NOTE, "drop duplicate message");
 			return;
 		}
 	} else {
@@ -786,7 +755,7 @@ void process_private_msg(char* msg, int cid) {
 	strncpy(init_token, msg, TOKEN_LENTH);
 	//sender infomation
 	get_connection_info(cid, ip, tcp_port);
-	printf("\tgot init_token: %s from %s:%s\n", init_token, ip, tcp_port);
+	printf("\t got init_token: %s from %s:%s\n", init_token, ip, tcp_port);
 	add_init_token(init_token);
     show_received_token();
 
@@ -794,11 +763,11 @@ void process_private_msg(char* msg, int cid) {
     int num_peers = count_current_connections();
 
 	if ( num_tokens == num_peers ) { // received enough tokens
-		puts("OK, we have enough tokens, here!!!!!!!!!");
-//		cmp_init_token();
-//		is_peerToken_determined = 1;
-//		printf("\tpeer token determined: %s\n", my_broc_msg.peer_token);
-//		send_broadcast_message();
+		puts("\t OK, we have enough tokens, here!!!!!!!!!");
+		get_peer_token();
+		is_peerToken_determined = 1;
+		printf("\t peer token determined: %s\n", self_peer_msg.peer_token);
+		send_udp_message();
 	}
 }
 /*
@@ -836,7 +805,7 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	char temp_ip[MAXLINE] = { '\0' };
 
 	get_connection_info(cid, temp_ip, remote_port);
-	add_broc_msg(source_token, source_udp_port, source_ip, remote_port);
+	add_udp_msg(source_token, source_udp_port, source_ip, remote_port);
 	//TODO test
 	if (1) {
 		show_broc_bag();
@@ -856,9 +825,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
  * process_salute(): deal with all the salute udp package
  * */
 void process_salute_msg(char buffer[]) {
-	char token[TOKEN_LENTH + 1] =
-	{	'\0'};char word[27] =
-	{	'\0'};
+	char token[TOKEN_LENTH + 1] ={'\0'};
+	char word[27] = {'\0'};
 	memcpy(token, buffer, TOKEN_LENTH);
 	memcpy(word, buffer + TOKEN_LENTH, SALUTE_LENGTH);
 	printf("%s: \"%s\"\n", token, word);
