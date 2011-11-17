@@ -619,13 +619,6 @@ void send_private_message(char* message, int sock_fd) {
 	generate_message_id(m_header.id);
 	//convert the local variable to network
 	m_header.payload_length = htons(strlen(package) + 1);
-
-	//TODO test
-	if ( 1 ) {
-		printf("type is %c\n", m_header.type);
-		printf("id is %s\n", m_header.id);
-		printf("length is %u\n", ntohs(m_header.payload_length));
-	}
 	if (sizeof(m_header) != 12) {
 		printf("message length is %d", sizeof(m_header));
 		throw_exception(FATAL_ERROR, "sizeof(m_header) != 12\n");
