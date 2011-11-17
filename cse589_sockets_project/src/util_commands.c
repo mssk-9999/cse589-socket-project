@@ -128,7 +128,7 @@ void show_connections() {
 }
 
 void ready() {
-	if (is_ready != 1) {
+	if (is_ready == 1) {
 		printf("\n\t sorry the step of sending initial token already complete.\n");
 		return;
 	}
