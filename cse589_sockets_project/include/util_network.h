@@ -108,7 +108,7 @@ void display_tcp_connection();
 
 // message container
 void init_message_container();
-void add_msg(char *id);
+void add_msg_to_container(char *id);
 
 //token container related
 void init_token_container();
@@ -116,12 +116,12 @@ void add_init_token(char init_token[]);
 int count_init_token();
 void get_peer_token();
 void show_received_token();
-
+void show_upd_message_container();
 // broadcast table related
 void init_recieve_udp_message_container();
 void init_leader();
 void find_leader();
-void add_udp_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]);
+void add_peer_token_to_container(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]);
 int numof_peer_token();
 void display_all_token();
 int get_self_token(char token[]);

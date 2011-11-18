@@ -18,17 +18,17 @@ static connection_container connection_list[MAX_CONNECTIONS];
 static token_container init_token_container_list[MAX_CONNECTIONS];
 static message_container msg_container_list[MAX_CITIZEN_NUM];
 //recieved udp message list
-static udp_message_struct recieved_upd_msg_container[MAX_CITIZEN_NUM];
+static udp_message_struct recieved_peer_token_container[MAX_CITIZEN_NUM];
 
 void init_recieve_udp_message_container() {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		recieved_upd_msg_container[i].ip = '\0';
-		recieved_upd_msg_container[i].udp_port = '\0';
-		recieved_upd_msg_container[i].peer_token[0] = '\0';
-		recieved_upd_msg_container[i].remote_ip[0] = '\0';
-		recieved_upd_msg_container[i].remote_port[0] = '\0';
-		recieved_upd_msg_container[i].isUsed = 0;
+		recieved_peer_token_container[i].ip = '\0';
+		recieved_peer_token_container[i].udp_port = '\0';
+		recieved_peer_token_container[i].peer_token[0] = '\0';
+		recieved_peer_token_container[i].remote_ip[0] = '\0';
+		recieved_peer_token_container[i].remote_port[0] = '\0';
+		recieved_peer_token_container[i].isUsed = 0;
 	}
 }
 
@@ -80,10 +80,8 @@ void init_message_container() {
 		msg_container_list[i].id[0] = '\0';
 	}
 }
-/*
- * add_msg(): add new msg to message bag
- * */
-void add_msg(char *id) {
+
+void add_msg_to_container(char *id) {
 	int i, flag = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
 		if (msg_container_list[i].isUsed == 0 && flag == 0) {
@@ -96,24 +94,24 @@ void add_msg(char *id) {
 	}
 }
 
-void add_udp_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]) {
+void add_peer_token_to_container(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]) {
 	int i;
 	int flag = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (recieved_upd_msg_container[i].isUsed == 0 && flag == 0) {
+		if (recieved_peer_token_container[i].isUsed == 0 && flag == 0) {
 			// add ip in big-endian
-			recieved_upd_msg_container[i].ip = ip;
+			recieved_peer_token_container[i].ip = ip;
 			// add ip in little-endian
 			char s_ip[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &(recieved_upd_msg_container[i].ip), s_ip, INET_ADDRSTRLEN);
-			strncpy(recieved_upd_msg_container[i].remote_ip, s_ip, strlen(s_ip));
+			inet_ntop(AF_INET, &(recieved_peer_token_container[i].ip), s_ip, INET_ADDRSTRLEN);
+			strncpy(recieved_peer_token_container[i].remote_ip, s_ip, strlen(s_ip));
 			// add udp port in big-endian
-			recieved_upd_msg_container[i].udp_port = udp_port;
+			recieved_peer_token_container[i].udp_port = udp_port;
 			// add udp port in little-endian
-			strncpy(recieved_upd_msg_container[i].peer_token, peer_token, TOKEN_LENTH);
-			strncpy(recieved_upd_msg_container[i].remote_port, r_port, strlen(r_port));
+			strncpy(recieved_peer_token_container[i].peer_token, peer_token, TOKEN_LENTH);
+			strncpy(recieved_peer_token_container[i].remote_port, r_port, strlen(r_port));
 			// add signal
-			recieved_upd_msg_container[i].isUsed = 1;
+			recieved_peer_token_container[i].isUsed = 1;
 			flag = 1;
 		}
 	}
@@ -124,22 +122,18 @@ void add_udp_msg(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[
 		send_salute_message();
 	}
 }
-/*
- * show_broc_bag(): display all broadcast message
- * */
-void show_broc_bag() {
+
+void show_upd_message_container() {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (recieved_upd_msg_container[i].isUsed == 1) {
+		if (recieved_peer_token_container[i].isUsed == 1) {
 			char source_ip[INET_ADDRSTRLEN];
-			inet_ntop(AF_INET, &(recieved_upd_msg_container[i].ip), source_ip, INET_ADDRSTRLEN);
-			printf("Broc_bag: i have token: <%s>  ip: <%s> udp_port: <%d>\n", recieved_upd_msg_container[i].peer_token, source_ip, ntohs(recieved_upd_msg_container[i].udp_port));
+			inet_ntop(AF_INET, &(recieved_peer_token_container[i].ip), source_ip, INET_ADDRSTRLEN);
+			printf("\t Received token: i have token: <%s>  ip: <%s> udp_port: <%d>\n", recieved_peer_token_container[i].peer_token, source_ip, ntohs(recieved_peer_token_container[i].udp_port));
 		}
 	}
 }
-/*
- * show_received_token(): display all received tokens
- * */
+
 void show_received_token() {
 	int i;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -182,11 +176,11 @@ void find_leader() {
 	long long int temp2 = 0;
 
 	for (z = 0; z < MAX_CITIZEN_NUM; z++) {
-		if (recieved_upd_msg_container[z].isUsed == 1) {
-			temp1 = strtoll(recieved_upd_msg_container[z].peer_token, NULL, 0);
+		if (recieved_peer_token_container[z].isUsed == 1) {
+			temp1 = strtoll(recieved_peer_token_container[z].peer_token, NULL, 0);
 			temp2 = strtoll(leader.peer_token, NULL, 0);
 			if (temp1 >= temp2)
-				leader = recieved_upd_msg_container[z];
+				leader = recieved_peer_token_container[z];
 		}
 	}
 }
@@ -232,10 +226,10 @@ void display_all_token() {
 	// find out how long each field needs to be
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (recieved_upd_msg_container[i].isUsed == 1) {
-			a = max(a, strlen(recieved_upd_msg_container[i].remote_ip));
-			b = max(b, strlen(recieved_upd_msg_container[i].remote_port));
-			c = max(c, strlen(recieved_upd_msg_container[i].peer_token));
+		if (recieved_peer_token_container[i].isUsed == 1) {
+			a = max(a, strlen(recieved_peer_token_container[i].remote_ip));
+			b = max(b, strlen(recieved_peer_token_container[i].remote_port));
+			c = max(c, strlen(recieved_peer_token_container[i].peer_token));
 		}
 	}
 	putchar('\n');
@@ -250,8 +244,8 @@ void display_all_token() {
 	putchar('\n');
 
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (recieved_upd_msg_container[i].isUsed == 1) {
-			printf(" %-*s | %-*s | %-*s\n", a, recieved_upd_msg_container[i].remote_ip, b, recieved_upd_msg_container[i].remote_port, c, recieved_upd_msg_container[i].peer_token);
+		if (recieved_peer_token_container[i].isUsed == 1) {
+			printf(" %-*s | %-*s | %-*s\n", a, recieved_peer_token_container[i].remote_ip, b, recieved_peer_token_container[i].remote_port, c, recieved_peer_token_container[i].peer_token);
 		}
 	}
 	fflush(stdout);
@@ -316,7 +310,7 @@ int get_max_fd() {
 int numof_peer_token() {
 	int i, counter = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (recieved_upd_msg_container[i].isUsed == 1)
+		if (recieved_peer_token_container[i].isUsed == 1)
 			counter++;
 	}
 	return counter;
@@ -712,9 +706,10 @@ void send_salute_message() {
 	/* construct variables for sendto() */
 	size_t msg_len = strlen(message) + 1;
 
-	if (0) {
-		printf("sendto():udp_port:%d\nmsg_len:%d\n", ntohs(leader.udp_port), msg_len);
-		printf("leader addr:%u\nleader_port:%u\n", leader_addr.sin_addr.s_addr, ntohs(leader_addr.sin_port));
+	//TODO test
+	if (1) {
+		printf("\t sendto():udp_port:%d\nmsg_len:%d\n", ntohs(leader.udp_port), msg_len);
+		printf("\t leader addr:%u\nleader_port:%u\n", leader_addr.sin_addr.s_addr, ntohs(leader_addr.sin_port));
 	}
 
 	/* now we can send to udp */
@@ -734,14 +729,14 @@ void process_received_message(message_header *mh, char msg[], int i) {
 	} else if (mh->type == BROADCAST) {
 		puts("\n\n\t Receive message on UDP port ... \n");
 		if (is_new_msg(mh->id)) {
-			add_msg(mh->id);
+			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
 		} else {
-			throw_exception(NOTE, "drop duplicate message");
+			throw_exception(NOTE, "\t drop duplicate message");
 			return;
 		}
 	} else {
-		throw_exception(NOTE, "wrong type: message ignored");
+		throw_exception(NOTE, "\t wrong type: message ignored");
 	}
 }
 /*
@@ -776,7 +771,7 @@ void process_private_msg(char* msg, int cid) {
 void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	//TODO test
 	if (1) { // test package
-		printf("process_broadcast_msg(): message length %d\n", strlen(msg));
+		printf("\t process_broadcast_msg(): message length %d\n", strlen(msg));
 		uint16_t in_port = 0;
 		uint32_t in_ip = 0;
 		memcpy(&in_ip, msg + 10, 4);
@@ -786,12 +781,12 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 		uint16_t h_port;
 		h_port = ntohs(in_port);
 		puts(source_ip);
-		printf("%u\n", h_port);
+		printf("\t %u\n", h_port);
 	} // end test
 
 	char in_token[11] = { '\0' };
 	memcpy(in_token, msg, TOKEN_LENTH);
-	printf("\tgot peer_token: %s\n", in_token);
+	printf("\t Received peer_token: %s\n", in_token);
 
 	char source_token[TOKEN_LENTH + 1] ={'\0'};
 	uint32_t source_ip = 0;
@@ -805,10 +800,10 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	char temp_ip[MAXLINE] = { '\0' };
 
 	get_connection_info(cid, temp_ip, remote_port);
-	add_udp_msg(source_token, source_udp_port, source_ip, remote_port);
+	add_peer_token_to_container(source_token, source_udp_port, source_ip, remote_port);
 	//TODO test
 	if (1) {
-		show_broc_bag();
+		show_upd_message_container();
 	}
 
 	int i, sock_fd = -1;
