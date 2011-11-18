@@ -122,7 +122,7 @@ void init_recieve_udp_message_container();
 void init_leader();
 void find_leader();
 void add_peer_token_to_container(char peer_token[], uint16_t udp_port, uint32_t ip, char r_port[]);
-int numof_peer_token();
+int count_peer_token();
 void display_all_token();
 int get_self_token(char token[]);
 
