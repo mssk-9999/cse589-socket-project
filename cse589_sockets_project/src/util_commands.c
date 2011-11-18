@@ -50,7 +50,7 @@ void run_cmd(char line[]) {
 	}
 	switch (i) {
 	case 0:
-		//info_handler();
+		display_server_info();
 		break;
 	case 1:
 		ready();
@@ -62,7 +62,7 @@ void run_cmd(char line[]) {
 		show_connections();
 		break;
 	case 4:
-		//self_token_handler();
+		display_peer_token();
 		break;
 	case 5:
 		show_received_tokens();
@@ -176,4 +176,25 @@ void ready() {
 	}
 	//set flag to 1
 	is_ready = 1;
+}
+
+void display_server_info() {
+	int a = (int) max(strlen("IP address"), strlen(local_ip));
+	int b = (int) max(strlen("host name"), strlen(current_host_name));
+	int c = (int) max(strlen("udp port"), strlen(udp_port));
+	int d = (int) max(strlen("tcp port"), strlen(tcp_port));
+	int n = a + b + c + d + 13;
+
+	putchar('\n');
+	printf(" %-*s | %-*s | %-*s | %-*s\n", a, "IP address", b, "host name", c,
+			"udp port", d, "tcp port");
+
+	int i;
+	for (i = 0; i < n; i++) {
+		putchar('-');
+	}
+	putchar('\n');
+
+	printf(" %-*s | %-*s | %-*s | %-*s\n", a, local_ip, b, current_host_name, c, udp_port, d, tcp_port);
+	fflush(stdout);
 }

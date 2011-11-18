@@ -47,7 +47,6 @@ void init_header(message_header *mh) {
 	mh->payload_length = 0;
 }
 
-//count the number of token that have recieced
 int count_init_token() {
 	int i, counter = 0;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -61,8 +60,9 @@ int get_self_token(char token[]) {
 	if (strlen(self_peer_msg.peer_token) != 0) {
 		strncpy(token, self_peer_msg.peer_token, TOKEN_LENTH);
 		return 1;
-	} else
+	} else{
 		return 0;
+	}
 }
 
 void init_token_container() {
@@ -118,7 +118,7 @@ void add_peer_token_to_container(char peer_token[], uint16_t udp_port, uint32_t 
 	// check if broadcast bag have n citizen's peer token
 	int curr_peer_token = count_peer_token();
 	int curr_init_token = count_init_token();
-	if ( curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number ) {
+	if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
 		find_leader();
 		printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
 		send_salute_message();
@@ -144,7 +144,6 @@ void show_received_token() {
 	}
 }
 
-//add init token
 void add_init_token(char init_token[]) {
 	int i;
 	int flag = 0;
@@ -169,9 +168,7 @@ void get_peer_token() {
 	}
 	sprintf(self_peer_msg.peer_token, "%lld", max_t);
 }
-/*
- *  find_leader(): find biggest peer token as our leader
- * */
+
 void find_leader() {
 	int z;
 	long long int temp1 = 0;
@@ -186,9 +183,7 @@ void find_leader() {
 		}
 	}
 }
-/*
- * parse argument line for connect
- * */
+
 int get_connection_arg(char * arg_line, char *arg_array[]) {
 	char * p;
 	int count = 0;
@@ -200,9 +195,7 @@ int get_connection_arg(char * arg_line, char *arg_array[]) {
 	}
 	return count;
 }
-/*
- * init_conns_list() : initialize the connection list
- */
+
 void init_conn_list() {
 	int i;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -252,10 +245,7 @@ void display_all_token() {
 	}
 	fflush(stdout);
 }
-/*
- * disp_tcp_conn(): used for display formatted infomations
- * , used by show-conn()
- * */
+
 void display_tcp_connection() {
 	if (count_current_connections() == 0) {
 		printf("\n\t No active TCP connection. \n");
@@ -295,10 +285,7 @@ void display_tcp_connection() {
 	}
 	fflush(stdout);
 }
-/*
- * get_max_fd(): return maximum sock_fd of all active connections
- *    -1 if no connection is active
- */
+
 int get_max_fd() {
 	int i, maxfd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -317,9 +304,7 @@ int count_peer_token() {
 	}
 	return counter;
 }
-/*
- * numof_active_conns(): returns the number of active TCP connections
- */
+
 int count_current_connections() {
 	int i, counter = 0;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -328,17 +313,12 @@ int count_current_connections() {
 	}
 	return counter;
 }
-/*
- * get_conn_info(): givin cid, return ip, tcp_port
- * */
+
 void get_connection_info(int conn_id, char ip[], char port[]) {
 	strncpy(ip, connection_list[conn_id].ip, MAXLINE);
 	strncpy(port, connection_list[conn_id].remote_port, MAXLINE);
 }
-/*
- * get_conn_fd(int conn_id): return connection fd of connection whose id is conn_id
- *   -1 if conn_id is inactive
- */
+
 int get_conn_fd(int conn_id) {
 	int conn = -1;
 	if (connection_list[conn_id].connection_status == 1) {
@@ -346,11 +326,7 @@ int get_conn_fd(int conn_id) {
 	}
 	return conn;
 }
-/*
- * remove_conn(int conn_id): remove the connection whose ID is conn_id
- *   return -1 if the connection is not active
- *   return the connection's socket_fd if it is
- */
+
 int remove_conn(int conn_id) {
 	int i, fd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -362,9 +338,7 @@ int remove_conn(int conn_id) {
 	}
 	return fd;
 }
-/*
- * is_new_msg(uint8_t *id): check if the id is already in the routing table
- */
+
 int is_new_msg(char *id) {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
@@ -375,10 +349,7 @@ int is_new_msg(char *id) {
 	}
 	return TRUE;
 }
-/*
- * add_conn(int sock_fd): add a new connection to the connection list
- *   return 0 on success, -1 on failure (list full)
- */
+
 void add_connection(int sock_fd) {
 	char ip[MAXLINE], hostname[MAXLINE], local_port[MAXLINE], remote_port[MAXLINE];
 	/* get ip, hostname, local port and remote port from sock_fd */
@@ -401,9 +372,7 @@ void add_connection(int sock_fd) {
 		}
 	}
 }
-/*
- *  retrieve the conment tcp request's ip, host name, local port, and remote port
- */
+
 void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port) {
 	struct sockaddr_in sa;
 	socklen_t sa_len = sizeof(sa);
@@ -415,11 +384,7 @@ void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port) 
 	getnameinfo((SA *) &sa, sa_len, name, MAXLINE, r_port, MAXLINE, NI_NUMERICSERV);
 
 }
-/*
- * create_tcp_socket() : creates a listening socket at port
- * return: the socket descriptor or -1
- * -1 stands for errors
- */
+
 int create_tcp_socket(char* port) {
 	int rv, sockfd = -1;/*new received connection, socket file descriptor*/
 	int yes = 1;
@@ -458,10 +423,7 @@ int create_tcp_socket(char* port) {
 	freeaddrinfo(res);
 	return (sockfd);
 }
-/*
- * bound_udp_socket(): returns a bound udp socket to "port"
- * return: sockfd or -1 on error
- */
+
 int create_udp_socket(char* port) {
 	int rv, udp_fd = -1;
 	struct addrinfo hints, *res;
@@ -497,11 +459,7 @@ int create_udp_socket(char* port) {
 	freeaddrinfo(res);
 	return (udp_fd);
 }
-/*
- * tcp_connect(): connect to "host: port" being either the port number or
- *   the actual service's name
- * 	Return: the socket descriptor on success or -1 on error
- */
+
 int tcp_connect(char *ip, char *port) {
 	int rv, sockfd = -1;
 	struct addrinfo hints, *res;
@@ -535,17 +493,14 @@ int tcp_connect(char *ip, char *port) {
 		}
 	}
 
-	if (res == NULL)
-	{ /* errno set from final connect() */
+	if (res == NULL) { //errno set from final connect()
 		fprintf(stderr, "tcp_connect error for %s, %s", ip, port);
 		return -1;
 	}
 	freeaddrinfo(res);
 	return (sockfd);
 }
-/*
- * set_randm_id(): generate and set random 7 digit ID
- * */
+
 void generate_message_id(char *id) {
 	int a[100] = { 0 };
 	int i, m;
@@ -572,15 +527,12 @@ void generate_message_id(char *id) {
 	id[7] = (char) '0';
 	//	printf("random id is %s\n", id);
 }
-/*
- * send_private_message(): send a tcp message to all connected peers.
- * write the message one field at a time.
- */
+
 void send_private_message(char* message, int sock_fd) {
 	//message body
 	char package[TOKEN_LENTH + 1] = {'\0'};memcpy(package, message, TOKEN_LENTH);
 
-	/* construct header */
+	//header
 	message_header m_header;
 	m_header.type = PRIVATE;
 	generate_message_id(m_header.id);
@@ -636,8 +588,8 @@ void send_udp_message() {
 	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
 
 	/* construct message body */
-	char package[TOKEN_LENTH + 7] ={'\0'};
-	memcpy(package, self_peer_msg.peer_token, TOKEN_LENTH);
+	char package[TOKEN_LENTH + 7] = {'\0'};memcpy
+	(package, self_peer_msg.peer_token, TOKEN_LENTH);
 	memcpy(package + TOKEN_LENTH, &self_peer_msg.ip, 4);
 	memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
@@ -754,10 +706,10 @@ void process_private_msg(char* msg, int cid) {
 	get_connection_info(cid, ip, tcp_port);
 	printf("\t got init_token: %s from %s:%s\n", init_token, ip, tcp_port);
 	add_init_token(init_token);
-    show_received_token();
+	show_received_token();
 
-    int num_tokens = count_init_token();
-    int num_peers = count_current_connections();
+	int num_tokens = count_init_token();
+	int num_peers = count_current_connections();
 
 	if ( num_tokens == num_peers ) { // received enough tokens
 		puts("\t OK, we have enough tokens, here!!!!!!!!!");
@@ -790,8 +742,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\t Received peer_token: %s\n", in_token);
 
-	char source_token[TOKEN_LENTH + 1] ={'\0'};
-	uint32_t source_ip = 0;
+	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
+	source_ip = 0;
 	uint16_t source_udp_port = 0;
 
 	memcpy(source_token, msg, TOKEN_LENTH);
@@ -822,15 +774,21 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
  * process_salute(): deal with all the salute udp package
  * */
 void process_salute_msg(char buffer[]) {
-	char token[TOKEN_LENTH + 1] ={'\0'};
-	char word[27] = {'\0'};
+	char token[TOKEN_LENTH + 1] = {'\0'};char word[27] = {'\0'};
 	memcpy(token, buffer, TOKEN_LENTH);
 	memcpy(word, buffer + TOKEN_LENTH, SALUTE_LENGTH);
 	printf("%s: \"%s\"\n", token, word);
 }
 
+void display_peer_token() {
+	char my_token[TOKEN_LENTH] = { '\0' };
+	if (get_self_token(my_token))
+		printf("\n\t peer token determined: %s\n", my_token);
+	else
+		printf("\n\t WAITING ON PEER_TOKEN\n");
+}
 /*
- *********************** Givin functions ******************************
+ *********************** Given functions ******************************
  * */
 /*
  * ----------------------------------------------------------------------------
@@ -893,124 +851,5 @@ ssize_t writen(int fd, const void* vptr, size_t n) {
 		ptr += nwritten;
 	}
 	return (n);
-}
-/*
- * ----------------------------------------------------------------------------
- * my_read:
- *   internal function, reads upto MAXLINE characters at a time, and then
- *     return them one at a time.
- *   this is much more efficient than 'read'ing one byte at a time, but the 
- *     price is that it's not "reentrant" or "thread-safe", due to the use
- *     of static variables
- * ----------------------------------------------------------------------------
- */
-static ssize_t my_read(int fd, char* ptr) {
-	static int read_count = 0;
-	static char* read_ptr;
-	static char read_buf[MAXLINE];
-	int got_signal;
-
-	got_signal = 0;
-	if (read_count <= 0) {
-		again: if ((read_count = read(fd, read_buf, sizeof(read_buf))) < 0) {
-			if (errno == EINTR)
-			{
-				goto again;
-				/* Dijkstra hates this, but he's not reading our code */
-			} else {
-				return (-1);
-			}
-		} else if (read_count == 0) {
-			return (0);
-		}
-		read_ptr = read_buf;
-	}
-
-	read_count--;
-	*ptr = *read_ptr++;
-	return (1);
-}
-/*
- * ----------------------------------------------------------------------------
- * readline:
- *   read upto '\n' or maxlen bytes from 'fd' into 'vptr'
- *   returns number of bytes read or -1 on error
- * ----------------------------------------------------------------------------
- */
-ssize_t readline(int fd, void *vptr, size_t maxlen) {
-	int n, rc;
-	char c, *ptr;
-
-	ptr = vptr;
-	for (n = 1; n < maxlen; n++) {
-		if ((rc = my_read(fd, &c)) == 1) {
-			*ptr++ = c;
-			if (c == '\n') {
-				break; /* newline is stored, like fgets() */
-			}
-		} else if (rc == 0) {
-			if (n == 1) {
-				return (0); /* EOF, no data read       */
-			} else {
-				break; /* EOF, some data was read */
-			}
-		} else {
-			return (-1); /* error, errno set by read()  */
-		}
-	}
-
-	*ptr = 0; /* null terminate like fgets() */
-	return (n);
-}
-/*
- * ----------------------------------------------------------------------------
- * simpler_sigaction:
- *   appropriately calls POSIX's sigaction, except for SIGALARM, we try to 
- *     restart any interrupted system calls after any other signals
- *   'signo' is the signal number
- *   'func' is the signal handler
- *   SIG_ERR is returned if the call to sigaction fails
- * ----------------------------------------------------------------------------
- */
-Sigfunc*
-simpler_sigaction(int signo, Sigfunc *func) {
-	struct sigaction act, oact;
-
-	act.sa_handler = func;
-	sigemptyset(&act.sa_mask);
-	act.sa_flags = 0;
-
-	if (signo == SIGALRM)
-	{
-#ifdef  SA_INTERRUPT
-		act.sa_flags |= SA_INTERRUPT; /* SunOS 4.x : only in the case of SIGALARM
-		 * we do not want to restart the sys. call */
-#endif
-	} else {
-#ifdef  SA_RESTART
-		act.sa_flags |= SA_RESTART; /* SVR4, 44BSD : restart interrupted system
-		 * calls */
-#endif
-	}
-
-	if (sigaction(signo, &act, &oact) < 0) {
-		return (SIG_ERR);
-	}
-	return (oact.sa_handler);
-}
-/*
- * ----------------------------------------------------------------------------
- * sig_child_handler:
- *   we do not want zombies, so try to wait for all children to finish whenever
- *     a SIGCHLD is received
- * ----------------------------------------------------------------------------
- */
-void sig_child_handler(int signo) {
-	pid_t pid;
-	int stat;
-
-	while ((pid = waitpid(-1, &stat, WNOHANG)) > 0) {
-		throw_exception(NOTE, "Child process %d terminated\n", pid);
-	}
 }
 
