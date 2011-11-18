@@ -343,7 +343,7 @@ int is_new_msg(char *id) {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
 		if (memcmp(id, msg_container_list[i].id, ID_LENGTH) == 0) {
-			puts("I already had this message, drop it");
+			puts("\t this message has been received!!");
 			return FALSE;
 		}
 	}
@@ -356,7 +356,7 @@ void add_connection(int sock_fd) {
 	getsockinfo(sock_fd, ip, hostname, local_port, remote_port);
 
 	/* print out connection info*/
-	printf(" new connection established to %s on %s", ip, local_port);
+	printf("\t new connection established to %s on %s", ip, local_port);
 
 	/* update the connection list */
 	int i;
