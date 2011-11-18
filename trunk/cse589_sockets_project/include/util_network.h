@@ -56,7 +56,7 @@ typedef struct {
 	char remote_port[MAXLINE]; //remote port
 } connection_container;
 
-/****************** Msg Header Table ************************/
+/****************** Msg Header************************/
 typedef struct {
 	char id[ID_LENGTH + 1];
 	char type;
@@ -72,7 +72,7 @@ typedef struct {
 	int isUsed;
 } udp_message_struct;
 
-/********************** token bag *************************/
+/********************** token container *************************/
 typedef struct {
 	char token_list[TOKEN_LENTH + 1];
 	int isUsed;
@@ -125,7 +125,7 @@ void add_peer_token_to_container(char peer_token[], uint16_t udp_port, uint32_t 
 int count_peer_token();
 void display_all_token();
 int get_self_token(char token[]);
-
+void display_peer_token();
 // message related
 void generate_message_id(char *id);
 int is_new_msg(char *id);
@@ -148,8 +148,4 @@ int get_connection_arg(char * arg_line, char *arg_array[]);
  * */
 ssize_t readn(int, void*, size_t);
 ssize_t writen(int, const void*, size_t);
-ssize_t readline(int, void*, size_t);
-Sigfunc* simpler_sigaction(int, Sigfunc*);
-void sig_child_handler(int);
-
 #endif /* _UTIL_NETWORK_H */

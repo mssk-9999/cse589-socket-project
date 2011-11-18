@@ -18,7 +18,7 @@ typedef struct {
 } command_table;
 
 void check_command(int argc, char** argv);
-void info_handler();
+void display_server_info();
 void ready();
 void establish_connection(char* argv);
 void show_connections();
