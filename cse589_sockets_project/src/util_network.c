@@ -116,7 +116,9 @@ void add_peer_token_to_container(char peer_token[], uint16_t udp_port, uint32_t 
 		}
 	}
 	// check if broadcast bag have n citizen's peer token
-	if (numof_peer_token() == max_citizen_number) {
+	int curr_peer_token = count_peer_token();
+	int curr_init_token = count_init_token();
+	if ( curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number ) {
 		find_leader();
 		printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
 		send_salute_message();
@@ -214,8 +216,8 @@ void init_conn_list() {
 }
 
 void display_all_token() {
-	if (numof_peer_token() == 0) {
-		printf("\n\tno peer token received\n");
+	if (count_peer_token() == 0) {
+		printf("\n\t None of the peer token received\n");
 		fflush(stdout);
 		return;
 	}
@@ -307,7 +309,7 @@ int get_max_fd() {
 	return maxfd;
 }
 
-int numof_peer_token() {
+int count_peer_token() {
 	int i, counter = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
 		if (recieved_peer_token_container[i].isUsed == 1)
@@ -631,8 +633,7 @@ void send_udp_message() {
 		printf(" my peer token is %s \n", self_peer_msg.peer_token);
 	}
 
-	/* add my own broadcast message into broc_bag */
-	add_udp_msg(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
+	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
 
 	/* construct message body */
 	char package[TOKEN_LENTH + 7] ={'\0'};
@@ -682,7 +683,7 @@ void send_udp_message() {
 
 			/* add msg_id to msg_bag */
 			if (is_new_msg(mh.id))
-				add_msg(mh.id);
+				add_msg_to_container(mh.id);
 		}
 	}
 
@@ -705,6 +706,7 @@ void send_salute_message() {
 
 	/* construct variables for sendto() */
 	size_t msg_len = strlen(message) + 1;
+	//TODO
 
 	//TODO test
 	if (1) {
