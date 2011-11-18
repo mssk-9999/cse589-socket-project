@@ -121,7 +121,6 @@ int main(int argc, char** argv) {
 						memcpy(&(m_head.payload_length), buffer + ID_LENGTH + 1, 2);
 						/* read the message */
 						bytes_read = readn(connFd, buffer, ntohs(m_head.payload_length));
-
 						process_received_message(&m_head, buffer, i);
 					}
 				}
