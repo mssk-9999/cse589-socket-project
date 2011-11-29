@@ -679,7 +679,10 @@ void process_received_message(message_header *mh, char msg[], int i) {
 		puts("\n\n\t receive message on TCP port ... \n");
 		process_private_msg(msg, i);
 	} else if (mh->type == BROADCAST) {
-		puts("\n\n\t Receive message on UDP port ... \n"+mh->id);
+		puts("\n\n\t Receive message on UDP port ... \n");
+		puts("id =====>");
+		puts(mh->id);
+		puts("\n");
 		if (is_new_msg(mh->id)) {
 			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
