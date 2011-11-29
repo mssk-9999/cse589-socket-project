@@ -673,15 +673,13 @@ void send_salute_message() {
 		printf("\tSALLUTE message was sent to host %s, port %d\n", leader.remote_ip, ntohs(leader.udp_port));
 	}
 }
-/*
- * process_received_private()
- * */
+
 void process_received_message(message_header *mh, char msg[], int i) {
 	if (mh->type == PRIVATE) {
 		puts("\n\n\t receive message on TCP port ... \n");
 		process_private_msg(msg, i);
 	} else if (mh->type == BROADCAST) {
-		puts("\n\n\t Receive message on UDP port ... \n");
+		puts("\n\n\t Receive message on UDP port ... \n"+mh->id);
 		if (is_new_msg(mh->id)) {
 			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
