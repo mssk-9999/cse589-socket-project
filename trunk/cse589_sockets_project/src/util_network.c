@@ -60,7 +60,7 @@ int get_self_token(char token[]) {
 	if (strlen(self_peer_msg.peer_token) != 0) {
 		strncpy(token, self_peer_msg.peer_token, TOKEN_LENTH);
 		return 1;
-	} else{
+	} else {
 		return 0;
 	}
 }
@@ -352,10 +352,12 @@ int is_new_msg(char *id) {
 
 void add_connection(int sock_fd) {
 	char ip[MAXLINE], hostname[MAXLINE], local_port[MAXLINE], remote_port[MAXLINE];
-	/* get ip, hostname, local port and remote port from sock_fd */
+	//get ip, hostname, local port and remote port from sock_fd
+	throw_exception(DEBUG, "remote port");
+	throw_exception(DEBUG, remote_port);
 	getsockinfo(sock_fd, ip, hostname, local_port, remote_port);
 
-	/* print out connection info*/
+	//print out connection info
 	printf("\t new connection established to %s on %s", ip, local_port);
 
 	/* update the connection list */
@@ -464,15 +466,9 @@ int tcp_connect(char *ip, char *port) {
 	int rv, sockfd = -1;
 	struct addrinfo hints, *res;
 
-	/*
-	 * fill out this structure to hint getaddrinfo what to search for
-	 * if SOCK_STREAM is not specified, for example, two or more
-	 * struct addrinfo could be returned since the service may be available
-	 * for both UDP and TCP.
-	 */
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = PF_INET; /* IPv4 or IPv6 */
-	hints.ai_socktype = SOCK_STREAM; /* but TCP only */
+	hints.ai_family = PF_INET;
+	hints.ai_socktype = SOCK_STREAM;
 
 	if ((rv = getaddrinfo(ip, port, &hints, &res)) != 0) {
 		throw_exception(ERROR, "tcp_connect() error : %s", gai_strerror(rv));
@@ -485,7 +481,7 @@ int tcp_connect(char *ip, char *port) {
 			continue;
 		if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0) {
 			printf("\n\tnew connection established\n");
-			break; /* success */
+			break;
 		} else {
 			printf("\nerror occurs in tcp connection\n");
 			close(sockfd);
@@ -680,6 +676,7 @@ void process_received_message(message_header *mh, char msg[], int i) {
 		process_private_msg(msg, i);
 	} else if (mh->type == BROADCAST) {
 		puts("\n\n\t Receive message on UDP port ... \n");
+		//TODO
 		puts("id =====>");
 		puts(mh->id);
 		puts("\n");
