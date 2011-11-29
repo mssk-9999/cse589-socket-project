@@ -84,13 +84,14 @@ void init_message_container() {
 void add_msg_to_container(char *id) {
 	int i, flag = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (msg_container_list[i].isUsed == 0 ) {
+		if (msg_container_list[i].isUsed == 0 && flag == 0) {
 			memcpy(msg_container_list[i].id, id, ID_LENGTH);
 			msg_container_list[i].isUsed = 1;
+			//TODO
 			if (0) {
 				printf("add_msg(): message id: %s, add it into msg_bag\n", msg_container_list[i].id);
 			}
-			//flag = 1;
+			flag = 1;
 		}
 	}
 }
@@ -343,8 +344,8 @@ int remove_conn(int conn_id) {
 int is_new_msg(char *id) {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		//if (memcmp(id, msg_container_list[i].id, ID_LENGTH) == 0) {
-		if ( msg_container_list[i].isUsed == 1) {
+		if (memcmp(id, msg_container_list[i].id, ID_LENGTH) == 0) {
+		//if ( msg_container_list[i].isUsed == 1) {
 			puts("\t this message has been received!!");
 			return FALSE;
 		}
@@ -571,7 +572,7 @@ void send_udp_message() {
 	self_peer_msg.ip = network_ip;
 	self_peer_msg.udp_port = network_udp_port;
 	//TODO test
-	if (1) {
+	if (0) {
 		// check my ip address
 		char source_ip[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &network_ip, source_ip, INET_ADDRSTRLEN);
@@ -591,7 +592,7 @@ void send_udp_message() {
 	memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
 	//TODO test
-	if (1) { // test package
+	if (0) { // test package
 		printf("after construction, %d bits long udp message is %s \n", strlen(package), package);
 		char in_token[11] = { '\0' };
 		uint16_t in_port = 0;
@@ -655,8 +656,6 @@ void send_salute_message() {
 
 	/* construct variables for sendto() */
 	size_t msg_len = strlen(message) + 1;
-	//TODO
-
 	//TODO test
 	if (1) {
 		printf("\t sendto():udp_port:%d\nmsg_len:%d\n", ntohs(leader.udp_port), msg_len);
@@ -677,10 +676,6 @@ void process_received_message(message_header *mh, char msg[], int i) {
 		process_private_msg(msg, i);
 	} else if (mh->type == BROADCAST) {
 		puts("\n\n\t Receive message on UDP port ... \n");
-		//TODO
-		puts("id =====>");
-		puts(mh->id);
-		puts("\n");
 		if (is_new_msg(mh->id)) {
 			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
@@ -723,7 +718,7 @@ void process_private_msg(char* msg, int cid) {
  * */
 void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	//TODO test
-	if (1) { // test package
+	if (0) { // test package
 		printf("\t process_broadcast_msg(): message length %d\n", strlen(msg));
 		uint16_t in_port = 0;
 		uint32_t in_ip = 0;
@@ -751,14 +746,14 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 
 	char remote_port[MAXLINE] = { '\0' };
 	char temp_ip[MAXLINE] = { '\0' };
-
+	//use connection id to get ip and remote port
 	get_connection_info(cid, temp_ip, remote_port);
 	add_peer_token_to_container(source_token, source_udp_port, source_ip, remote_port);
 	//TODO test
-	if (1) {
+	if (0) {
 		show_upd_message_container();
 	}
-
+	//send out broadcast message
 	int i, sock_fd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (i != cid) {
@@ -773,7 +768,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
  * process_salute(): deal with all the salute udp package
  * */
 void process_salute_msg(char buffer[]) {
-	char token[TOKEN_LENTH + 1] = {'\0'};char word[27] = {'\0'};
+	char token[TOKEN_LENTH + 1] = {'\0'};
+	char word[27] = {'\0'};
 	memcpy(token, buffer, TOKEN_LENTH);
 	memcpy(word, buffer + TOKEN_LENTH, SALUTE_LENGTH);
 	printf("%s: \"%s\"\n", token, word);
