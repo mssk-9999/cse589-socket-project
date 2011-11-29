@@ -353,10 +353,9 @@ int is_new_msg(char *id) {
 void add_connection(int sock_fd) {
 	char ip[MAXLINE], hostname[MAXLINE], local_port[MAXLINE], remote_port[MAXLINE];
 	//get ip, hostname, local port and remote port from sock_fd
+	getsockinfo(sock_fd, ip, hostname, local_port, remote_port);
 	throw_exception(DEBUG, "remote port");
 	throw_exception(DEBUG, remote_port);
-	getsockinfo(sock_fd, ip, hostname, local_port, remote_port);
-
 	//print out connection info
 	printf("\t new connection established to %s on %s", ip, local_port);
 
