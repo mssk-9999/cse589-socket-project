@@ -84,12 +84,13 @@ void init_message_container() {
 void add_msg_to_container(char *id) {
 	int i, flag = 0;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (msg_container_list[i].isUsed == 0 && flag == 0) {
+		if (msg_container_list[i].isUsed == 0 ) {
 			memcpy(msg_container_list[i].id, id, ID_LENGTH);
+			msg_container_list[i].isUsed = 1;
 			if (0) {
 				printf("add_msg(): message id: %s, add it into msg_bag\n", msg_container_list[i].id);
 			}
-			flag = 1;
+			//flag = 1;
 		}
 	}
 }
@@ -342,7 +343,8 @@ int remove_conn(int conn_id) {
 int is_new_msg(char *id) {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
-		if (memcmp(id, msg_container_list[i].id, ID_LENGTH) == 0) {
+		//if (memcmp(id, msg_container_list[i].id, ID_LENGTH) == 0) {
+		if ( msg_container_list[i].isUsed == 1) {
 			puts("\t this message has been received!!");
 			return FALSE;
 		}
@@ -739,8 +741,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\t Received peer_token: %s\n", in_token);
 
-	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
-	source_ip = 0;
+	char source_token[TOKEN_LENTH + 1] = {'\0'};
+	uint32_t source_ip = 0;
 	uint16_t source_udp_port = 0;
 
 	memcpy(source_token, msg, TOKEN_LENTH);
