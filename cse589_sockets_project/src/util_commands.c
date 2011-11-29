@@ -179,6 +179,7 @@ void ready() {
 }
 
 void display_server_info() {
+	get_public_ip(local_ip);
 	int a = (int) max(strlen("IP address"), strlen(local_ip));
 	int b = (int) max(strlen("host name"), strlen(current_host_name));
 	int c = (int) max(strlen("udp port"), strlen(udp_port));

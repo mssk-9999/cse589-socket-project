@@ -347,7 +347,7 @@ int is_new_msg(char *id) {
 	int i;
 	for (i = 0; i < MAX_CITIZEN_NUM; i++) {
 		if (memcmp(id, msg_container_list[i].id, ID_LENGTH) == 0) {
-		//if ( msg_container_list[i].isUsed == 1) {
+			//if ( msg_container_list[i].isUsed == 1) {
 			puts("\t this message has been received!!");
 			return FALSE;
 		}
@@ -393,6 +393,7 @@ void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port) 
 	inet_ntop(AF_INET, &sa.sin_addr, ip, MAXLINE);
 	getnameinfo((SA *) &sa, sa_len, name, MAXLINE, r_port, MAXLINE, NI_NUMERICSERV);
 
+	printf("\t\t %s : %s", name, r_port);
 }
 
 int create_tcp_socket(char* port) {
@@ -405,7 +406,9 @@ int create_tcp_socket(char* port) {
 	hints.ai_family = PF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
-	if ((rv = getaddrinfo(NULL, port, &hints, &res)) != 0) {
+	char ip[MAXLINE] = { '\0' };
+	get_public_ip(ip);
+	if ((rv = getaddrinfo(ip, port, &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
 	}
@@ -444,7 +447,9 @@ int create_udp_socket(char* port) {
 	hints.ai_family = PF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
 
-	if ((rv = getaddrinfo(NULL, port, &hints, &res)) != 0) {
+	char ip[MAXLINE] = { '\0' };
+	get_public_ip(ip);
+	if ((rv = getaddrinfo(ip, port, &hints, &res)) != 0) {
 		throw_exception(ERROR, "bound_udp error for port %s: %s", port, gai_strerror(rv));
 		return -1;
 	}
@@ -727,8 +732,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\t Received peer_token: %s\n", in_token);
 
-	char source_token[TOKEN_LENTH + 1] = {'\0'};
-	uint32_t source_ip = 0;
+	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
+	source_ip = 0;
 	uint16_t source_udp_port = 0;
 
 	memcpy(source_token, msg, TOKEN_LENTH);
@@ -755,8 +760,7 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
  * process_salute(): deal with all the salute udp package
  * */
 void process_salute_msg(char buffer[]) {
-	char token[TOKEN_LENTH + 1] = {'\0'};
-	char word[27] = {'\0'};
+	char token[TOKEN_LENTH + 1] = {'\0'};char word[27] = {'\0'};
 	memcpy(token, buffer, TOKEN_LENTH);
 	memcpy(word, buffer + TOKEN_LENTH, SALUTE_LENGTH);
 	printf("%s: \"%s\"\n", token, word);
@@ -835,3 +839,19 @@ ssize_t writen(int fd, const void* vptr, size_t n) {
 	return (n);
 }
 
+void get_public_ip(char *ip) {
+	int sock = socket(AF_INET, SOCK_DGRAM, 0);
+	const char* kGoogleDnsIp = "8.8.8.8";
+	uint16_t kDnsPort = 53;
+	struct sockaddr_in serv;
+	memset(&serv, 0, sizeof(serv));
+	serv.sin_family = AF_INET;
+	serv.sin_addr.s_addr = inet_addr(kGoogleDnsIp);
+	serv.sin_port = htons(kDnsPort);
+	connect(sock, (const struct sockaddr *) &serv, sizeof(serv));
+	struct sockaddr_in name;
+	socklen_t namelen = sizeof(name);
+	getsockname(sock, (struct sockaddr*) &name, &namelen);
+	inet_ntop(AF_INET, &name.sin_addr, ip, MAXLINE);
+	close(sock);
+}
