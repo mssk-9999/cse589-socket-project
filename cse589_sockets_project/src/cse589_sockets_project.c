@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 		if (FD_ISSET(listen_fd, &read_set)) {
 			//error occurs, accept() returns -1 and sets errno
 			sin_size = sizeof remote_addr;
-			tcp_fd = accept(listen_fd, (struct sockaddr *) &remote_addr, &sin_size);
+			tcp_fd = accept(listen_fd, NULL, NULL);
 			if (tcp_fd != -1) { //accept successfully
 				//check wether we have room for this connection
 				if (count_current_connections() < MAX_CONNECTIONS) {

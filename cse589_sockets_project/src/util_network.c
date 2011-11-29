@@ -17,7 +17,9 @@ static udp_message_struct leader;
 static connection_container connection_list[MAX_CONNECTIONS];
 static token_container init_token_container_list[MAX_CONNECTIONS];
 static message_container msg_container_list[MAX_CITIZEN_NUM];
-//recieved udp message list
+
+//static IP_TABLE ip_table[] = { { "128.205.36.8" }, { "128.205.36.24" } , { "128.205.35.24" } };
+//Received udp message list
 static udp_message_struct recieved_peer_token_container[MAX_CITIZEN_NUM];
 
 void init_recieve_udp_message_container() {
@@ -379,7 +381,11 @@ void add_connection(int sock_fd) {
 
 void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port) {
 	struct sockaddr_in sa;
+	sa.sin_family = AF_INET;
+	sa.sin_addr.s_addr = htonl(INADDR_ANY);
+	sa.sin_port = htons(0);
 	socklen_t sa_len = sizeof(sa);
+
 	getsockname(sock_fd, (SA*) &sa, &sa_len);
 	snprintf(l_port, MAXLINE, "%u", ntohs(sa.sin_port));
 	sa_len = sizeof(sa);
@@ -408,13 +414,13 @@ int create_tcp_socket(char* port) {
 	do {
 		sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 		if (sockfd < 0) {
-			continue; /* err, try next one */
+			continue;
 		} else if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
 			throw_exception(FATAL_ERROR, "can't setsockopt to be SO_REUSEADDR");
 		} else if (bind(sockfd, res->ai_addr, res->ai_addrlen) == 0)
-			break; /* success */
+			break;
 		else {
-			close(sockfd); /* error, try next one */
+			close(sockfd);
 		}
 	} while ((res = res->ai_next) != NULL);
 
@@ -717,21 +723,6 @@ void process_private_msg(char* msg, int cid) {
  * process_broadcast_mse(): deal with all broadcast message and forward
  * */
 void process_broadcast_msg(message_header *mh, char* msg, int cid) {
-	//TODO test
-	if (0) { // test package
-		printf("\t process_broadcast_msg(): message length %d\n", strlen(msg));
-		uint16_t in_port = 0;
-		uint32_t in_ip = 0;
-		memcpy(&in_ip, msg + 10, 4);
-		memcpy(&in_port, msg + 14, 2);
-		char source_ip[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &in_ip, source_ip, INET_ADDRSTRLEN);
-		uint16_t h_port;
-		h_port = ntohs(in_port);
-		puts(source_ip);
-		printf("\t %u\n", h_port);
-	} // end test
-
 	char in_token[11] = { '\0' };
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\t Received peer_token: %s\n", in_token);
@@ -749,10 +740,6 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	//use connection id to get ip and remote port
 	get_connection_info(cid, temp_ip, remote_port);
 	add_peer_token_to_container(source_token, source_udp_port, source_ip, remote_port);
-	//TODO test
-	if (0) {
-		show_upd_message_container();
-	}
 	//send out broadcast message
 	int i, sock_fd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {

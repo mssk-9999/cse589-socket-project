@@ -21,6 +21,9 @@
 #define TOKEN_LENTH 10
 #define SALUTE_LENGTH 26
 
+typedef struct {
+	char* ip; /* command name: "info", "connect", ... */
+} IP_TABLE;
 /*
  * **************** Local Variables **********************
  *
