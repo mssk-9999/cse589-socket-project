@@ -34,7 +34,9 @@ int main(int argc, char** argv) {
 	char buffer[BUF_SIZE] = { '\0' };
 	int bytes_read = -1;
 	int maxfd;
-	fd_set read_set; /* set of fds to read from */
+	struct sockaddr_storage remote_addr; // connector's address information
+	socklen_t sin_size;
+	fd_set read_set;
 
 	prompt();
 	//////////////////////////////////////
@@ -68,7 +70,8 @@ int main(int argc, char** argv) {
 		//take connection request
 		if (FD_ISSET(listen_fd, &read_set)) {
 			//error occurs, accept() returns -1 and sets errno
-			tcp_fd = accept(listen_fd, NULL, NULL);
+			sin_size = sizeof remote_addr;
+			tcp_fd = accept(listen_fd, (struct sockaddr *) &remote_addr, &sin_size);
 			if (tcp_fd != -1) { //accept successfully
 				//check wether we have room for this connection
 				if (count_current_connections() < MAX_CONNECTIONS) {
