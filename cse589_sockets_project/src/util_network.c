@@ -567,7 +567,9 @@ int send_message(int sock_fd, message_header *m_header, char* msg) {
 
 void send_udp_message() {
 	// double check for network variables
-	self_peer_msg.ip = local_ip;
+	char ip[MAXLINE];
+	get_public_ip(ip);
+	self_peer_msg.ip = ip;
 	self_peer_msg.udp_port = network_udp_port;
 	//TODO test
 	if (0) {
@@ -697,8 +699,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\t Received peer_token: %s\n", in_token);
 
-	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
-	source_ip = 0;
+	char source_token[TOKEN_LENTH + 1] = {'\0'};
+	uint32_t source_ip = 0;
 	uint16_t source_udp_port = 0;
 
 	memcpy(source_token, msg, TOKEN_LENTH);
