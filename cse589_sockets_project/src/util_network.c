@@ -545,6 +545,7 @@ void send_private_message(char* message, int sock_fd) {
 }
 
 int send_message(int sock_fd, message_header *m_header, char* msg) {
+	puts("777777777777");
 	char* message;
 	int len;
 	len = ID_LENGTH + 4 + strlen(msg);
@@ -707,10 +708,12 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	add_peer_token_to_container(source_token, source_udp_port, source_ip, remote_port);
 	//send out broadcast message
 	int i, sock_fd = -1;
+	puts("11111");
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (i != cid) {
 			sock_fd = get_conn_fd(i);
 			if (sock_fd != -1) {
+				puts("33333333333");
 				char pg[TOKEN_LENTH + 7] = {'\0'};
 				memcpy(pg, source_token, TOKEN_LENTH);
 				memcpy(pg + TOKEN_LENTH, &network_ip, 4);
@@ -720,6 +723,7 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 			}
 		}
 	}
+	puts("22222222222222");
 }
 /*
  * process_salute(): deal with all the salute udp package
