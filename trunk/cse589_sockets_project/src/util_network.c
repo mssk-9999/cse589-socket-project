@@ -483,6 +483,7 @@ int tcp_connect(char *ip, char *port) {
 	hints.ai_family = PF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
+	get_public_ip(ip);
 	if ((rv = getaddrinfo(ip, port, &hints, &res)) != 0) {
 		throw_exception(ERROR, "tcp_connect() error : %s", gai_strerror(rv));
 		return -1;

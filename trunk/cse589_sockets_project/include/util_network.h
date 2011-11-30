@@ -144,6 +144,7 @@ void process_salute_msg(char buffer[]);
 
 // misc
 int get_connection_arg(char * arg_line, char *arg_array[]);
+void get_public_ip(char *ip);
 
 
 /*
