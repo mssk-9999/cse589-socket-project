@@ -397,8 +397,7 @@ int create_tcp_socket(char* port) {
 	hints.ai_socktype = SOCK_STREAM;
 
 	char ip[MAXLINE] = { '\0' };
-	get_public_ip(ip);
-	if ((rv = getaddrinfo(ip, port, &hints, &res)) != 0) {
+	if ((rv = getaddrinfo(local_ip, port, &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
 	}
@@ -437,9 +436,7 @@ int create_udp_socket(char* port) {
 	hints.ai_family = PF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
 
-	char ip[MAXLINE] = { '\0' };
-	get_public_ip(ip);
-	if ((rv = getaddrinfo(ip, port, &hints, &res)) != 0) {
+	if ((rv = getaddrinfo(local_ip, port, &hints, &res)) != 0) {
 		throw_exception(ERROR, "bound_udp error for port %s: %s", port, gai_strerror(rv));
 		return -1;
 	}
@@ -568,14 +565,13 @@ int send_message(int sock_fd, message_header *m_header, char* msg) {
 void send_udp_message() {
 	// double check for network variables
 	char ip[MAXLINE];
-	get_public_ip(ip);
-	self_peer_msg.ip = ip;
+	self_peer_msg.ip = local_ip;
 	self_peer_msg.udp_port = network_udp_port;
 
 	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
 	//message body
-	char package[TOKEN_LENTH + 7] = {'\0'};memcpy
-	(package, self_peer_msg.peer_token, TOKEN_LENTH);
+	char package[TOKEN_LENTH + 7] = {'\0'};
+	memcpy(package, self_peer_msg.peer_token, TOKEN_LENTH);
 	memcpy(package + TOKEN_LENTH, &self_peer_msg.ip, 4);
 	memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
