@@ -166,10 +166,10 @@ void init(int argc, char** argv) {
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	char ip[MAXLINE] = { '\0' };
-	get_public_ip(ip);
+	get_public_ip(local_ip);
+	printf("%s\n", local_ip);
 	//TODO
-	puts(ip);
-	if ((rv = getaddrinfo(ip, NULL, &hints, &servinfo)) != 0) {
+	if ((rv = getaddrinfo(local_ip, NULL, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
 	}
