@@ -645,6 +645,7 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
 			// check if broadcast bag have n citizen's peer token
+			printf( "is_salue: %d", is_salute );
 			if (is_salute == 0) {
 				is_salute = 1;
 				int curr_peer_token = count_peer_token();
@@ -707,7 +708,7 @@ void process_private_msg(char* msg, int cid) {
 void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	char in_token[11] = { '\0' };
 	memcpy(in_token, msg, TOKEN_LENTH);
-	printf(" Received peer_token: %s\n", in_token);
+	printf("\tReceived peer_token: %s\n", in_token);
 
 	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
 	source_ip = 0;
