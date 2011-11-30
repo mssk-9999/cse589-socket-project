@@ -645,12 +645,11 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
 			// check if broadcast bag have n citizen's peer token
-			printf( "is_salue: %d", is_salute );
 			if (is_salute == 0) {
-				is_salute = 1;
 				int curr_peer_token = count_peer_token();
 				int curr_init_token = count_init_token();
 				if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+					is_salute = 1;
 					find_leader();
 					printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
 					send_salute_message();
@@ -660,10 +659,10 @@ void process_received_message(message_header *mh, char msg[], int i) {
 		} else {
 			// check if broadcast bag have n citizen's peer token
 			if (is_salute == 0) {
-				is_salute = 1;
 				int curr_peer_token = count_peer_token();
 				int curr_init_token = count_init_token();
 				if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+					is_salute = 1;
 					find_leader();
 					printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
 					send_salute_message();
