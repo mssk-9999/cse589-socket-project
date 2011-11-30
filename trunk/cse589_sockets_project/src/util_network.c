@@ -647,13 +647,13 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			throw_exception(NOTE, "\t drop duplicate message");
 		}
 		// check if broadcast bag have n citizen's peer token
-		int curr_peer_token = count_peer_token();
-		int curr_init_token = count_init_token();
-		if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
-			find_leader();
-			printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
-			send_salute_message();
-		}
+//		int curr_peer_token = count_peer_token();
+//		int curr_init_token = count_init_token();
+//		if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+//			find_leader();
+//			printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
+//			send_salute_message();
+//		}
 	} else {
 		throw_exception(NOTE, "\t wrong type: message ignored");
 	}
@@ -705,7 +705,6 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	//use connection id to get ip and remote port
 	get_connection_info(cid, temp_ip, remote_port);
 	add_peer_token_to_container(source_token, source_udp_port, source_ip, remote_port);
-	printf("ip: %s, upd: %s", source_ip, source_udp_port);
 	//send out broadcast message
 	int i, sock_fd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
@@ -714,7 +713,7 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 			if (sock_fd != -1) {
 				//char package[TOKEN_LENTH + 7] = {'\0'};
 				//memcpy(package, source_token, TOKEN_LENTH);
-				//memcpy(msg + TOKEN_LENTH, &network_ip, 4);
+				memcpy(msg + TOKEN_LENTH, &network_ip, 4);
 				///memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
 				send_message(sock_fd, mh, msg);
