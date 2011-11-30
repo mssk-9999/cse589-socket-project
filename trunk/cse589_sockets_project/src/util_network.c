@@ -705,18 +705,16 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	//use connection id to get ip and remote port
 	get_connection_info(cid, temp_ip, remote_port);
 	add_peer_token_to_container(source_token, source_udp_port, source_ip, remote_port);
-	printf("ip: s%, upd: s%", source_ip, source_udp_port);
+	printf("ip: %s, upd: %s", source_ip, source_udp_port);
 	//send out broadcast message
 	int i, sock_fd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (i != cid) {
-			puts("1");
 			sock_fd = get_conn_fd(i);
 			if (sock_fd != -1) {
-				puts("2");
 				//char package[TOKEN_LENTH + 7] = {'\0'};
 				//memcpy(package, source_token, TOKEN_LENTH);
-				memcpy(msg + TOKEN_LENTH, &network_ip, 4);
+				//memcpy(msg + TOKEN_LENTH, &network_ip, 4);
 				///memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
 				send_message(sock_fd, mh, msg);
