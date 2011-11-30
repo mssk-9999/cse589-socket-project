@@ -704,6 +704,11 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 		if (i != cid) {
 			sock_fd = get_conn_fd(i);
 			if (sock_fd != -1) {
+				char package[TOKEN_LENTH + 7] = {'\0'};
+				memcpy(package, source_token, TOKEN_LENTH);
+				memcpy(package + TOKEN_LENTH, &network_ip, 4);
+				memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
+
 				send_message(sock_fd, mh, msg);
 			}
 		}
