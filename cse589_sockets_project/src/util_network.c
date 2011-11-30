@@ -119,14 +119,6 @@ void add_peer_token_to_container(char peer_token[], uint16_t udp_port, uint32_t 
 			flag = 1;
 		}
 	}
-	// check if broadcast bag have n citizen's peer token
-	int curr_peer_token = count_peer_token();
-	int curr_init_token = count_init_token();
-	if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
-		find_leader();
-		printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
-		send_salute_message();
-	}
 }
 
 void show_upd_message_container() {
@@ -359,8 +351,6 @@ void add_connection(int sock_fd) {
 	char ip[MAXLINE], hostname[MAXLINE], local_port[MAXLINE], remote_port[MAXLINE];
 	//get ip, hostname, local port and remote port from sock_fd
 	getsockinfo(sock_fd, ip, hostname, local_port, remote_port);
-	throw_exception(DEBUG, "remote port");
-	throw_exception(DEBUG, remote_port);
 	//print out connection info
 	printf("\t new connection established to %s on %s", ip, local_port);
 
@@ -557,9 +547,6 @@ void send_private_message(char* message, int sock_fd) {
 
 }
 
-/*
- * send_message(): send header and string
- */
 int send_message(int sock_fd, message_header *m_header, char* msg) {
 	char* message;
 	int len;
@@ -575,12 +562,12 @@ int send_message(int sock_fd, message_header *m_header, char* msg) {
 		throw_exception(ERROR, "Writen message error");
 
 	free(message);
-	return 0; /* success */
+	return 0;
 }
 
 void send_udp_message() {
 	// double check for network variables
-	self_peer_msg.ip = network_ip;
+	self_peer_msg.ip = local_ip;
 	self_peer_msg.udp_port = network_udp_port;
 	//TODO test
 	if (0) {
@@ -595,32 +582,11 @@ void send_udp_message() {
 	}
 
 	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
-
-	/* construct message body */
+	//message body
 	char package[TOKEN_LENTH + 7] = {'\0'};memcpy
 	(package, self_peer_msg.peer_token, TOKEN_LENTH);
 	memcpy(package + TOKEN_LENTH, &self_peer_msg.ip, 4);
 	memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
-
-	//TODO test
-	if (0) { // test package
-		printf("after construction, %d bits long udp message is %s \n", strlen(package), package);
-		char in_token[11] = { '\0' };
-		uint16_t in_port = 0;
-		uint32_t in_ip = 0;
-
-		memcpy(in_token, package, 10);
-		memcpy(&in_ip, package + 10, 4);
-		memcpy(&in_port, package + 14, 2);
-
-		char source_ip[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &in_ip, source_ip, INET_ADDRSTRLEN);
-		uint16_t h_port;
-		h_port = ntohs(in_port);
-		puts(in_token);
-		puts(source_ip);
-		printf("%u\n", h_port);
-	} // end test
 
 	/* begin broadcasting */
 	int i, sock_fd = -1;
@@ -639,7 +605,6 @@ void send_udp_message() {
 				throw_exception(ERROR, "sizeof(mh) != 12\n");
 			}
 
-			//printf("BROADCAST message established, calling send_message()\n");
 			send_message(sock_fd, &mh, package);
 
 			/* add msg_id to msg_bag */
@@ -683,10 +648,10 @@ void send_salute_message() {
 
 void process_received_message(message_header *mh, char msg[], int i) {
 	if (mh->type == PRIVATE) {
-		puts("\n\n\t receive message on TCP port ... \n");
+		puts("\n\n\t receive private message ... \n");
 		process_private_msg(msg, i);
 	} else if (mh->type == BROADCAST) {
-		puts("\n\n\t Receive message on UDP port ... \n");
+		puts("\n\n\t Receive BROADCAST message ... \n");
 		if (is_new_msg(mh->id)) {
 			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
@@ -754,6 +719,14 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 				send_message(sock_fd, mh, msg);
 			}
 		}
+	}
+	// check if broadcast bag have n citizen's peer token
+	int curr_peer_token = count_peer_token();
+	int curr_init_token = count_init_token();
+	if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+		find_leader();
+		printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
+		send_salute_message();
 	}
 }
 /*
