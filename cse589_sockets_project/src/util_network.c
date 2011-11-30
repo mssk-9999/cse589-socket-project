@@ -646,6 +646,7 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			process_broadcast_msg(mh, msg, i);
 		} else {
 			throw_exception(NOTE, "\t drop duplicate message");
+			return;
 		}
 		// check if broadcast bag have n citizen's peer token
 //		int curr_peer_token = count_peer_token();
