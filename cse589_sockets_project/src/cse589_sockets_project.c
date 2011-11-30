@@ -165,7 +165,8 @@ void init(int argc, char** argv) {
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	char ip[MAXLINE] = get_public_ip();
+	char ip[MAXLINE] = {'\0'}
+	get_public_ip(ip);
 	if ((rv = getaddrinfo(ip, NULL, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
