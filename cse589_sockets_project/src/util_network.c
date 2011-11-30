@@ -571,8 +571,8 @@ void send_udp_message() {
 
 	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
 	//message body
-	char package[TOKEN_LENTH + 7] = {'\0'};
-	memcpy(package, self_peer_msg.peer_token, TOKEN_LENTH);
+	char package[TOKEN_LENTH + 7] = {'\0'};memcpy
+	(package, self_peer_msg.peer_token, TOKEN_LENTH);
 	memcpy(package + TOKEN_LENTH, &network_ip, 4);
 	memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
@@ -645,7 +645,14 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			process_broadcast_msg(mh, msg, i);
 		} else {
 			throw_exception(NOTE, "\t drop duplicate message");
-			return;
+		}
+		// check if broadcast bag have n citizen's peer token
+		int curr_peer_token = count_peer_token();
+		int curr_init_token = count_init_token();
+		if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+			find_leader();
+			printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
+			send_salute_message();
 		}
 	} else {
 		throw_exception(NOTE, "\t wrong type: message ignored");
@@ -685,8 +692,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\t Received peer_token: %s\n", in_token);
 
-	char source_token[TOKEN_LENTH + 1] = {'\0'};
-	uint32_t source_ip = 0;
+	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
+	source_ip = 0;
 	uint16_t source_udp_port = 0;
 
 	memcpy(source_token, msg, TOKEN_LENTH);
@@ -704,22 +711,13 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 		if (i != cid) {
 			sock_fd = get_conn_fd(i);
 			if (sock_fd != -1) {
-				char package[TOKEN_LENTH + 7] = {'\0'};
-				memcpy(package, source_token, TOKEN_LENTH);
+				char package[TOKEN_LENTH + 7] = {'\0'};memcpy(package, source_token, TOKEN_LENTH);
 				memcpy(package + TOKEN_LENTH, &network_ip, 4);
 				memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
-				send_message(sock_fd, mh, msg);
+				send_message(sock_fd, mh, package);
 			}
 		}
-	}
-	// check if broadcast bag have n citizen's peer token
-	int curr_peer_token = count_peer_token();
-	int curr_init_token = count_init_token();
-	if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
-		find_leader();
-		printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
-		send_salute_message();
 	}
 }
 /*
