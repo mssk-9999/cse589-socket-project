@@ -710,8 +710,10 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	int i, sock_fd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
 		if (i != cid) {
+			puts("1");
 			sock_fd = get_conn_fd(i);
 			if (sock_fd != -1) {
+				puts("2");
 				//char package[TOKEN_LENTH + 7] = {'\0'};
 				//memcpy(package, source_token, TOKEN_LENTH);
 				memcpy(msg + TOKEN_LENTH, &network_ip, 4);
