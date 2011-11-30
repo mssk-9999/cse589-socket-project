@@ -178,7 +178,7 @@ void init(int argc, char** argv) {
 	inet_ntop(AF_INET, &sa.sin_addr, local_ip, INET_ADDRSTRLEN);
 	memcpy(&network_ip, &sa.sin_addr, 4);
 	//TODO
-	printf("%d", network_ip);
+	printf("%d", local_ip);
 	//free up the memory, otherwise it will cause memory leak
 	freeaddrinfo(servinfo);
 
