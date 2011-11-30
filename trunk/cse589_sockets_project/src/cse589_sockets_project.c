@@ -165,7 +165,7 @@ void init(int argc, char** argv) {
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	char ip[MAXLINE] = {'\0'};
+	char ip[MAXLINE] = { '\0' };
 	get_public_ip(ip);
 	if ((rv = getaddrinfo(ip, NULL, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
@@ -174,10 +174,11 @@ void init(int argc, char** argv) {
 	// get local ip and network ip
 	struct sockaddr_in sa;
 	memcpy(&sa, servinfo->ai_addr, sizeof(sa));
-	printf("%d", sa.sin_addr.s_addr);
 	//return local human-readable IP
 	inet_ntop(AF_INET, &sa.sin_addr, local_ip, INET_ADDRSTRLEN);
 	memcpy(&network_ip, &sa.sin_addr, 4);
+	//TODO
+	printf("%d", network_ip);
 	//free up the memory, otherwise it will cause memory leak
 	freeaddrinfo(servinfo);
 

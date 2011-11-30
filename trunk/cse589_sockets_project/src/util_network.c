@@ -571,17 +571,6 @@ void send_udp_message() {
 	get_public_ip(ip);
 	self_peer_msg.ip = ip;
 	self_peer_msg.udp_port = network_udp_port;
-	//TODO test
-	if (0) {
-		// check my ip address
-		char source_ip[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &network_ip, source_ip, INET_ADDRSTRLEN);
-		printf(" my ip is %s \n", source_ip);
-		// check my udp port
-		printf(" udp_port is %d now \n", ntohs(network_udp_port));
-		// check my peer_token
-		printf(" my peer token is %s \n", self_peer_msg.peer_token);
-	}
 
 	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
 	//message body
@@ -699,8 +688,8 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	memcpy(in_token, msg, TOKEN_LENTH);
 	printf("\t Received peer_token: %s\n", in_token);
 
-	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
-	source_ip = 0;
+	char source_token[TOKEN_LENTH + 1] = {'\0'};
+	uint32_t source_ip = 0;
 	uint16_t source_udp_port = 0;
 
 	memcpy(source_token, msg, TOKEN_LENTH);
@@ -711,7 +700,7 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	char temp_ip[MAXLINE] = { '\0' };
 	//use connection id to get ip and remote port
 	get_connection_info(cid, temp_ip, remote_port);
-	add_peer_token_to_container(source_token, source_udp_port, temp_ip, remote_port);
+	add_peer_token_to_container(source_token, source_udp_port, source_ip, remote_port);
 	//send out broadcast message
 	int i, sock_fd = -1;
 	for (i = 0; i < MAX_CONNECTIONS; i++) {
