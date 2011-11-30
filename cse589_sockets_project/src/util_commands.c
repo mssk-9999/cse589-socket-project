@@ -173,8 +173,7 @@ void ready() {
 				}
 			}
 		} //end for loop
-	}
-	//set flag to 1
+	}//set flag to 1
 	is_ready = 1;
 }
 
