@@ -167,21 +167,12 @@ void init(int argc, char** argv) {
 	hints.ai_socktype = SOCK_STREAM;
 	char ip[MAXLINE] = { '\0' };
 	get_public_ip(ip);
+	//TODO
+	puts(ip);
 	if ((rv = getaddrinfo(ip, NULL, &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(1);
 	}
-	// get local ip and network ip
-	struct sockaddr_in sa;
-	memcpy(&sa, servinfo->ai_addr, sizeof(sa));
-	//return local human-readable IP
-	inet_ntop(AF_INET, &sa.sin_addr, local_ip, INET_ADDRSTRLEN);
-	memcpy(&network_ip, &sa.sin_addr, 4);
-	//TODO
-	printf("%d", local_ip);
-	//free up the memory, otherwise it will cause memory leak
-	freeaddrinfo(servinfo);
-
 	//start tcp and udp listening port
 	listen_fd = create_tcp_socket(tcp_port);
 	udp_fd = create_udp_socket(udp_port);
