@@ -652,6 +652,14 @@ void process_received_message(message_header *mh, char msg[], int i) {
 				send_salute_message();
 			}
 		} else {
+			// check if broadcast bag have n citizen's peer token
+			int curr_peer_token = count_peer_token();
+			int curr_init_token = count_init_token();
+			if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+				find_leader();
+				printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
+				send_salute_message();
+			}
 			throw_exception(NOTE, "\t drop duplicate message");
 			return;
 		}
