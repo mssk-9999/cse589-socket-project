@@ -17,6 +17,7 @@ static udp_message_struct leader;
 static connection_container connection_list[MAX_CONNECTIONS];
 static token_container init_token_container_list[MAX_CONNECTIONS];
 static message_container msg_container_list[MAX_CITIZEN_NUM];
+static int is_salute = 0;
 
 //static IP_TABLE ip_table[] = { { "128.205.36.8" }, { "128.205.36.24" } , { "128.205.35.24" } };
 //Received udp message list
@@ -644,21 +645,28 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			add_msg_to_container(mh->id);
 			process_broadcast_msg(mh, msg, i);
 			// check if broadcast bag have n citizen's peer token
-			int curr_peer_token = count_peer_token();
-			int curr_init_token = count_init_token();
-			if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
-				find_leader();
-				printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
-				send_salute_message();
+			if (is_salute == 0) {
+				is_salute = 1;
+				int curr_peer_token = count_peer_token();
+				int curr_init_token = count_init_token();
+				if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+					find_leader();
+					printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
+					send_salute_message();
+				}
 			}
+
 		} else {
 			// check if broadcast bag have n citizen's peer token
-			int curr_peer_token = count_peer_token();
-			int curr_init_token = count_init_token();
-			if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
-				find_leader();
-				printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
-				send_salute_message();
+			if (is_salute == 0) {
+				is_salute = 1;
+				int curr_peer_token = count_peer_token();
+				int curr_init_token = count_init_token();
+				if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
+					find_leader();
+					printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
+					send_salute_message();
+				}
 			}
 			throw_exception(NOTE, "\t drop duplicate message");
 			return;
@@ -699,7 +707,7 @@ void process_private_msg(char* msg, int cid) {
 void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 	char in_token[11] = { '\0' };
 	memcpy(in_token, msg, TOKEN_LENTH);
-	printf("\t Received peer_token: %s\n", in_token);
+	printf(" Received peer_token: %s\n", in_token);
 
 	char source_token[TOKEN_LENTH + 1] = {'\0'};uint32_t
 	source_ip = 0;
@@ -727,14 +735,6 @@ void process_broadcast_msg(message_header *mh, char* msg, int cid) {
 				send_message(sock_fd, mh, msg);
 			}
 		}
-	}
-	// check if broadcast bag have n citizen's peer token
-	int curr_peer_token = count_peer_token();
-	int curr_init_token = count_init_token();
-	if (curr_peer_token == max_citizen_number && curr_init_token == max_citizen_number) {
-		find_leader();
-		printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
-		send_salute_message();
 	}
 }
 /*
