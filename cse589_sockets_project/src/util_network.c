@@ -566,13 +566,15 @@ void send_udp_message() {
 	// double check for network variables
 	char ip[MAXLINE];
 	self_peer_msg.ip = local_ip;
+	inet_pton(AF_INET, local_ip, network_ip);
+	printf("sender ip: %s", self_peer_msg.ip);
 	self_peer_msg.udp_port = network_udp_port;
 
 	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
 	//message body
 	char package[TOKEN_LENTH + 7] = {'\0'};
 	memcpy(package, self_peer_msg.peer_token, TOKEN_LENTH);
-	memcpy(package + TOKEN_LENTH, &self_peer_msg.ip, 4);
+	memcpy(package + TOKEN_LENTH, &network_ip, 4);
 	memcpy(package + TOKEN_LENTH + 4, &self_peer_msg.udp_port, 2);
 
 	/* begin broadcasting */
@@ -663,8 +665,8 @@ void process_private_msg(char* msg, int cid) {
 	get_connection_info(cid, ip, tcp_port);
 	printf("\t got init_token: %s from %s:%s\n", init_token, ip, tcp_port);
 	add_init_token(init_token);
-	show_received_token();
 
+	//check number of init-tokens
 	int num_tokens = count_init_token();
 	int num_peers = count_current_connections();
 
