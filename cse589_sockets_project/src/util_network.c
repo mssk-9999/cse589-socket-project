@@ -648,7 +648,7 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			if (is_salute == 0) {
 				int curr_peer_token = count_peer_token();
 				int curr_init_token = count_init_token();
-				if (curr_peer_token == (max_citizen_number*2) && curr_init_token == max_citizen_number) {
+				if (curr_peer_token >= (max_citizen_number*2) && curr_init_token == max_citizen_number) {
 					is_salute = 1;
 					find_leader();
 					printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
@@ -661,7 +661,7 @@ void process_received_message(message_header *mh, char msg[], int i) {
 			if (is_salute == 0) {
 				int curr_peer_token = count_peer_token();
 				int curr_init_token = count_init_token();
-				if (curr_peer_token == (max_citizen_number*2) && curr_init_token == max_citizen_number) {
+				if (curr_peer_token >= (max_citizen_number*2) && curr_init_token == max_citizen_number) {
 					is_salute = 1;
 					find_leader();
 					printf("\t leader(%s) is from %s:%d\n", leader.peer_token, leader.remote_ip, ntohs(leader.udp_port));
