@@ -564,10 +564,9 @@ int send_message(int sock_fd, message_header *m_header, char* msg) {
 
 void send_udp_message() {
 	// double check for network variables
-	char ip[MAXLINE];
-	self_peer_msg.ip = local_ip;
-	inet_pton(AF_INET, local_ip, network_ip);
-	printf("sender ip: %s", self_peer_msg.ip);
+	inet_pton(AF_INET, local_ip, &network_ip);
+	self_peer_msg.ip = network_ip;
+	printf("sender ip: %s", local_ip);
 	self_peer_msg.udp_port = network_udp_port;
 
 	add_peer_token_to_container(self_peer_msg.peer_token, self_peer_msg.udp_port, self_peer_msg.ip, tcp_port);
