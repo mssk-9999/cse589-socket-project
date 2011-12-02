@@ -90,10 +90,6 @@ void add_msg_to_container(char *id) {
 		if (msg_container_list[i].isUsed == 0 && flag == 0) {
 			memcpy(msg_container_list[i].id, id, ID_LENGTH);
 			msg_container_list[i].isUsed = 1;
-			//TODO
-			if (0) {
-				printf("add_msg(): message id: %s, add it into msg_bag\n", msg_container_list[i].id);
-			}
 			flag = 1;
 		}
 	}
@@ -353,7 +349,7 @@ void add_connection(int sock_fd) {
 	//get ip, hostname, local port and remote port from sock_fd
 	getsockinfo(sock_fd, ip, hostname, local_port, remote_port);
 	//print out connection info
-	printf("\t new connection established to %s on %s", ip, local_port);
+	printf("\n\t new connection established to %s on %s\n", ip, local_port);
 
 	/* update the connection list */
 	int i;
@@ -540,7 +536,6 @@ void send_private_message(char* message, int sock_fd) {
 		throw_exception(FATAL_ERROR, "sizeof(m_header) != 12\n");
 	}
 	//send the message to all connections
-	printf("\t PRIVATE message is ready to go, calling send_message()\n");
 	send_message(sock_fd, &m_header, package);
 
 }
@@ -621,11 +616,6 @@ void send_salute_message() {
 
 	/* construct variables for sendto() */
 	size_t msg_len = strlen(message) + 1;
-	//TODO test
-	if (1) {
-		printf("\t sendto():udp_port:%d\nmsg_len:%d\n", ntohs(leader.udp_port), msg_len);
-		printf("\t leader addr:%u\nleader_port:%u\n", leader_addr.sin_addr.s_addr, ntohs(leader_addr.sin_port));
-	}
 
 	/* now we can send to udp */
 	if (sendto(udp_fd, message, msg_len, 0, (SA *) &leader_addr, sizeof(leader_addr)) < 0) {
@@ -694,7 +684,6 @@ void process_private_msg(char* msg, int cid) {
 	int num_peers = count_current_connections();
 
 	if ( num_tokens == num_peers ) { // received enough tokens
-		puts("\t OK, we have enough tokens, here!!!!!!!!!");
 		get_peer_token();
 		is_peerToken_determined = 1;
 		printf("\t peer token determined: %s\n", self_peer_msg.peer_token);
