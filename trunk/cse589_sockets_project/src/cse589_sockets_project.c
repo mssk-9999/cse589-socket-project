@@ -76,7 +76,6 @@ int main(int argc, char** argv) {
 				//check wether we have room for this connection
 				if (count_current_connections() < MAX_CONNECTIONS) {
 					add_connection(tcp_fd);
-					printf("\n new connection established\n");
 				} else {
 					close(tcp_fd);
 					fprintf(stderr, "max number of connection reached");
