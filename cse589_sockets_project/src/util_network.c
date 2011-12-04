@@ -379,8 +379,6 @@ void getsockinfo(int sock_fd, char* ip, char* name, char* l_port, char* r_port) 
 	getpeername(sock_fd, (SA *) &sa, &sa_len);
 	inet_ntop(AF_INET, &sa.sin_addr, ip, MAXLINE);
 	getnameinfo((SA *) &sa, sa_len, name, MAXLINE, r_port, MAXLINE, NI_NUMERICSERV);
-
-	printf("\t\t %s : %s", name, r_port);
 }
 
 int create_tcp_socket(char* port) {
